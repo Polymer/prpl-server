@@ -1,0 +1,8 @@
+{
+  "name": "prpl-server-node",
+  "version": "0.1.0",
+  "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
+  "repository": "git+https://github.com/Polymer/prpl-server-node.git",
+  "author": "The Polymer Project Authors",
+  "license": "BSD-3-Clause"
+}
