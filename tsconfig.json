@@ -11,6 +11,8 @@
     "noUnusedParameters": true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "pretty": true,
+    "declaration": true,
     "skipLibCheck": true
   },
   "include": [

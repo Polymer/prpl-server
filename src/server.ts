@@ -14,7 +14,7 @@
 
 import * as express from 'express';
 
-export function server() {
+export function server(): express.Express {
   const app = express();
   app.get('*', function(_req, res, _next) {
     res.send('hello world');
