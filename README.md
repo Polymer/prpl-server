@@ -4,6 +4,8 @@
 
 A Node implementation of the [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) pattern for serving Progressive Web Apps.
 
+**(Note: This project is in early development and is not yet suitable for use.)**
+
 ## Installation
 
 ```sh
@@ -29,8 +31,8 @@ server.listen(8080);
 ## Compiling from source
 
 ```sh
-$ yarn run build      # once
-$ yarn run build:test # continuous
+$ yarn run build       # once
+$ yarn run build:watch # continuous
 ```
 
 ## Run tests
