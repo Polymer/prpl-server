@@ -1,8 +1,34 @@
 {
-  "name": "prpl-server-node",
+  "name": "prpl-server",
   "version": "0.1.0",
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
   "repository": "git+https://github.com/Polymer/prpl-server-node.git",
+  "main": "lib/server.js",
+  "bin": "bin/prpl-server",
+  "engines": {
+    "node": ">=6.0"
+  },
   "author": "The Polymer Project Authors",
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
+    "test": "npm run build && mocha",
+    "test:watch": "watchy -w src -- npm run test"
+  },
+  "devDependencies": {
+    "@types/chai": "^3.5.2",
+    "@types/mocha": "^2.2.41",
+    "chai": "^3.5.0",
+    "clang-format": "^1.0.50",
+    "mocha": "^3.3.0",
+    "source-map-support": "^0.4.15",
+    "typescript": "^2.3.2",
+    "watchy": "^0.6.7"
+  },
+  "dependencies": {
+    "@types/express": "^4.0.35",
+    "express": "^4.15.2"
+  }
 }
