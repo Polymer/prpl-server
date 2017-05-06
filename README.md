@@ -9,7 +9,7 @@ A Node implementation of the [PRPL](https://developers.google.com/web/fundamenta
 ## Installation
 
 ```sh
-$ yarn install prpl-server -g
+$ yarn global add prpl-server
 ```
 
 ## Usage
@@ -31,13 +31,13 @@ server.listen(8080);
 ## Compiling from source
 
 ```sh
-$ yarn run build       # once
-$ yarn run build:watch # continuous
+$ yarn build       # once
+$ yarn build:watch # continuous
 ```
 
 ## Run tests
 
 ```sh
-$ yarn run test       # once
-$ yarn run test:watch # continuous
+$ yarn test       # once
+$ yarn test:watch # continuous
 ```
