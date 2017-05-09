@@ -38,6 +38,10 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
+"@types/ua-parser-js@^0.7.30":
+  version "0.7.30"
+  resolved "https://registry.yarnpkg.com/@types/ua-parser-js/-/ua-parser-js-0.7.30.tgz#9096e5552ff02f8d018a17efac69b4dc75083f8b"
+
 abbrev@1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.0.tgz#d0554c2256636e2f56e7c2e5ad183f859428d81f"
@@ -1416,6 +1420,10 @@ type-is@~1.6.14:
 typescript@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.3.2.tgz#f0f045e196f69a72f06b25fd3bd39d01c3ce9984"
+
+ua-parser-js@^0.7.12:
+  version "0.7.12"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.12.tgz#04c81a99bdd5dc52263ea29d24c6bf8d4818a4bb"
 
 uid-number@^0.0.6:
   version "0.0.6"
