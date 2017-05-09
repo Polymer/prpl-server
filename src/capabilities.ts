@@ -15,66 +15,18 @@
 import {UAParser} from 'ua-parser-js';
 
 /**
- * A browser feature.
+ * A feature supported by a web browser.
  */
-export type Capability =
+export type BrowserCapability =
     // ECMAScript 2015 (aka ES6).
     'es2015' |
     // HTTP/2 Server Push.
     'push';
 
-/**
- * Return a capability map for the given user agent string.
- */
-export function capabilities(userAgent: string):
-    {[key in Capability]: boolean} {
-  const ua = new UAParser(userAgent);
-  const supports = browserCapabilities[ua.getBrowser().name];
-  return {
-    es2015: !!supports && supports.es2015(ua),
-    push: !!supports && supports.push(ua),
-  };
-};
+type UserAgentPredicate = (ua: UAParser) => boolean;
 
-/**
- * Parse a "x.y.z" version string of any length into integer parts. Returns -1
- * for a part that doesn't parse.
- */
-export function parseVersion(version: string): number[] {
-  return version.split('.').map((part) => {
-    const i = parseInt(part, 10);
-    return isNaN(i) ? -1 : i;
-  });
-}
-
-/**
- * Return whether `version` is at least as high as `requirement`.
- */
-export function satisfies(requirement: number[], version: number[]): boolean {
-  for (let i = 0; i < requirement.length; i++) {
-    const r = requirement[i];
-    const v = version.length > i ? version[i] : 0;
-    if (v > r) {
-      return true;
-    }
-    if (v < r) {
-      return false;
-    }
-  }
-  return true;
-}
-
-type CapabilityPredicate = (ua: UAParser) => boolean;
-
-/**
- * Make a predicate that checks if the browser version is at least this high.
- */
-function since(...requirement: number[]): CapabilityPredicate {
-  return (ua) => satisfies(requirement, parseVersion(ua.getBrowser().version));
-}
-
-const browserCapabilities:
-    {[browser: string]: {[key in Capability]: CapabilityPredicate}} = {
+const browserPredicates:
+    {[browser: string]: {[key in BrowserCapability]: UserAgentPredicate}} = {
       'Chrome': {
         es2015: since(49),
         push: since(41),
@@ -89,7 +41,7 @@ const browserCapabilities:
       },
       'Vivaldi': {
         es2015: since(1),
-        push: () => false,  // TODO Test if Vivaldi supports push.
+        push: since(1),
       },
       'Mobile Safari': {
         es2015: since(10),
@@ -98,10 +50,10 @@ const browserCapabilities:
       'Safari': {
         es2015: since(10),
         push: (ua) => {
-          return satisfies([9], parseVersion(ua.getBrowser().version)) &&
+          return versionAtLeast([9], parseVersion(ua.getBrowser().version)) &&
               // HTTP/2 on desktop Safari requires macOS 10.11 according to
               // caniuse.com.
-              satisfies([10, 11], parseVersion(ua.getOS().version));
+              versionAtLeast([10, 11], parseVersion(ua.getOS().version));
         },
       },
       'Edge': {
@@ -115,3 +67,53 @@ const browserCapabilities:
         push: since(36),
       },
     };
+
+/**
+ * Return the set of capabilities for a user agent string.
+ */
+export function browserCapabilities(userAgent: string): Set<BrowserCapability> {
+  const ua = new UAParser(userAgent);
+  const capabilities = new Set<BrowserCapability>();
+  const predicates = browserPredicates[ua.getBrowser().name] || {};
+  for (const capability of Object.keys(predicates) as BrowserCapability[]) {
+    if (predicates[capability](ua)) {
+      capabilities.add(capability);
+    }
+  };
+  return capabilities;
+}
+
+/**
+ * Parse a "x.y.z" version string of any length into integer parts. Returns -1
+ * for a part that doesn't parse.
+ */
+export function parseVersion(version: string): number[] {
+  return version.split('.').map((part) => {
+    const i = parseInt(part, 10);
+    return isNaN(i) ? -1 : i;
+  });
+}
+
+/**
+ * Return whether `version` is at least as high as `atLeast`.
+ */
+export function versionAtLeast(atLeast: number[], version: number[]): boolean {
+  for (let i = 0; i < atLeast.length; i++) {
+    const r = atLeast[i];
+    const v = version.length > i ? version[i] : 0;
+    if (v > r) {
+      return true;
+    }
+    if (v < r) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Make a predicate that checks if the browser version is at least this high.
+ */
+function since(...atLeast: number[]): UserAgentPredicate {
+  return (ua) => versionAtLeast(atLeast, parseVersion(ua.getBrowser().version));
+}

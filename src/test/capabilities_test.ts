@@ -15,38 +15,39 @@
 import {assert} from 'chai';
 import * as capabilities from '../capabilities';
 
-function assertCapabilities(
-    userAgent: string, expect: {[key in capabilities.Capability]: boolean}) {
-  assert.deepEqual(capabilities.capabilities(userAgent), expect);
+function assertBrowserCapabilities(
+    userAgent: string, expect: capabilities.BrowserCapability[]) {
+  assert.deepEqual(
+      capabilities.browserCapabilities(userAgent), new Set(expect));
 }
 
 suite('capabilities', function() {
   test('unknown browser has no capabilities', () => {
-    assertCapabilities('unknown browser', {es2015: false, push: false});
+    assertBrowserCapabilities('unknown browser', []);
   });
 
   test('chrome has all the capabilities', () => {
-    assertCapabilities(
+    assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36',
-        {es2015: true, push: true});
+        ['es2015', 'push']);
   });
 
   test('edge es2015 support is predicated on minor browser version', () => {
-    assertCapabilities(
+    assertBrowserCapabilities(
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.14986',
-        {es2015: false, push: true});
-    assertCapabilities(
+        ['push']);
+    assertBrowserCapabilities(
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063',
-        {es2015: true, push: true});
+        ['es2015', 'push']);
   });
 
   test('safari push capability is predicated on macOS version', () => {
-    assertCapabilities(
+    assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30',
-        {es2015: true, push: false});
-    assertCapabilities(
+        ['push']);
+    assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30',
-        {es2015: true, push: true});
+        ['push']);
   });
 
   test('parseVersion parses with fallback to -1', () => {
@@ -55,16 +56,16 @@ suite('capabilities', function() {
     assert.deepEqual(capabilities.parseVersion('4..foo.7'), [4, -1, -1, 7]);
   });
 
-  test('satisfies checks all required parts', () => {
-    assert.isTrue(capabilities.satisfies([3, 2, 1], [3, 2, 1]));
-    assert.isTrue(capabilities.satisfies([3, 2, 1], [3, 2, 1, 4]));
-    assert.isTrue(capabilities.satisfies([3, 2, 1], [4, 1, 0]));
-    assert.isTrue(capabilities.satisfies([3, 2, 0], [3, 2]));
-    assert.isFalse(capabilities.satisfies([3, 2, 1], [2, 2, 1]));
-    assert.isFalse(capabilities.satisfies([3, 2, 1], [3, 1, 1]));
-    assert.isFalse(capabilities.satisfies([3, 2, 1], [3, 1, 0]));
-    assert.isFalse(capabilities.satisfies([3, 2, 1], [3, 2]));
-    assert.isFalse(capabilities.satisfies([3, 2, 1], [3, 2]));
-    assert.isFalse(capabilities.satisfies([3, 2, 1], []));
+  test('versionAtLeast checks all required parts', () => {
+    assert.isTrue(capabilities.versionAtLeast([3, 2, 1], [3, 2, 1]));
+    assert.isTrue(capabilities.versionAtLeast([3, 2, 1], [3, 2, 1, 4]));
+    assert.isTrue(capabilities.versionAtLeast([3, 2, 1], [4, 1, 0]));
+    assert.isTrue(capabilities.versionAtLeast([3, 2, 0], [3, 2]));
+    assert.isFalse(capabilities.versionAtLeast([3, 2, 1], [2, 2, 1]));
+    assert.isFalse(capabilities.versionAtLeast([3, 2, 1], [3, 1, 1]));
+    assert.isFalse(capabilities.versionAtLeast([3, 2, 1], [3, 1, 0]));
+    assert.isFalse(capabilities.versionAtLeast([3, 2, 1], [3, 2]));
+    assert.isFalse(capabilities.versionAtLeast([3, 2, 1], [3, 2]));
+    assert.isFalse(capabilities.versionAtLeast([3, 2, 1], []));
   });
 });
