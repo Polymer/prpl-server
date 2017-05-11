@@ -12,12 +12,15 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
-import * as express from 'express';
+import * as http from 'http';
+import * as send from 'send';
+import * as url from 'url';
 
-export function server(): express.Express {
-  const app = express();
-  app.get('*', function(_req, res, _next) {
-    res.send('hello world');
-  });
-  return app;
+export function handler(root?: string): (
+    request: http.IncomingMessage, response: http.ServerResponse) => void {
+  root = root || '.';
+  return function(request, response) {
+    const pathname = url.parse(request.url || '').pathname || '/';
+    send(request, pathname, {root: root}).pipe(response);
+  }
 }
