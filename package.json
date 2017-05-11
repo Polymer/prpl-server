@@ -30,7 +30,9 @@
   "dependencies": {
     "@types/express": "^4.0.35",
     "@types/ua-parser-js": "^0.7.30",
+    "@types/valid-url": "^1.0.2",
     "express": "^4.15.2",
-    "ua-parser-js": "^0.7.12"
+    "ua-parser-js": "^0.7.12",
+    "valid-url": "^1.0.9"
   }
 }
