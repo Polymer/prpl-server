@@ -28,12 +28,13 @@
     "watchy": "^0.6.7"
   },
   "dependencies": {
-    "@types/minimist": "^1.2.0",
     "@types/node": "^7.0.18",
     "@types/send": "^0.14.2",
     "@types/ua-parser-js": "^0.7.30",
     "@types/valid-url": "^1.0.2",
-    "minimist": "^1.2.0",
+    "ansi-escape-sequences": "^3.0.0",
+    "command-line-args": "^4.0.4",
+    "command-line-usage": "^4.0.0",
     "send": "^0.15.2",
     "ua-parser-js": "^0.7.12",
     "valid-url": "^1.0.9"

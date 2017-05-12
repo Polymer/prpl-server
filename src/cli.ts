@@ -13,74 +13,77 @@
  */
 
 import * as http from 'http';
-import * as minimist from 'minimist';
+
 import * as prpl from './prpl';
 
-const defaults = {
-  host: '127.0.0.1',
-  port: '8080',
-  root: '.',
-};
+const commandLineArgs = require('command-line-args') as any;
+const commandLineUsage = require('command-line-usage') as any;
+const ansi = require('ansi-escape-sequences') as any;
 
-const opts = {
-  string: ['host', 'port', 'root'],
-  boolean: ['help'],
-  default: defaults,
-  unknown: (arg: string) => {
-    throw new Error(`unknown arg: "${arg}"`);
+const argDefs = [
+  {
+    name: 'help',
+    type: Boolean,
+    description: 'Print this help text',
   },
-};
-
-const color = {
-  reset: '\x1b[0m',
-  magenta: '\x1b[35m',
-  blue: '\x1b[34m',
-};
-
-const help = `
-${color.magenta}prpl-server${color.reset}
-
-https://github.com/Polymer/prpl-server-node
-
---host	Listen on this hostname (default ${defaults.host}).
---port	Listen on this port; 0 for random (default ${defaults.port}).
---root	Serve files relative to this directory (default ${defaults.root}).
---help	Print this help text.`;
+  {
+    name: 'host',
+    type: String,
+    defaultValue: '127.0.0.1',
+    description: 'Listen on this hostname (default 127.0.0.1).',
+  },
+  {
+    name: 'port',
+    type: Number,
+    defaultValue: 8080,
+    description: 'Listen on this port; 0 for random (default 8080).'
+  },
+  {
+    name: 'root',
+    type: String,
+    defaultValue: '.',
+    description: 'Serve files relative to this directory (default ".").',
+  },
+];
 
 export function run(argv: string[]) {
-  const args = minimist(argv.slice(2), opts);
+  const args = commandLineArgs(argDefs, {argv});
 
   if (args.help) {
-    console.log(help);
+    console.log(commandLineUsage([
+      {
+        header: `[magenta]{prpl-server}`,
+        content: 'https://github.com/Polymer/prpl-server-node',
+      },
+      {
+        header: `Options`,
+        optionList: argDefs,
+      }
+    ]));
     return;
   }
 
   if (!args.host) {
-    throw new Error('empty --host');
+    throw new Error('invalid --host');
   }
-  if (!args.port) {
-    throw new Error('empty --port');
+  if (isNaN(args.port)) {
+    throw new Error('invalid --port');
   }
   if (!args.root) {
-    throw new Error('empty --root');
-  }
-
-  const port = Number(args.port);
-  if (isNaN(port)) {
-    throw new Error(`invalid --port "${args.port}"`);
+    throw new Error('invalid --root');
   }
 
   const server = http.createServer(prpl.handler(args.root));
 
-  server.listen(port, args.host, () => {
+  server.listen(args.port, args.host, () => {
     const addr = server.address();
     let urlHost = addr.address;
     if (addr.family === 'IPv6') {
       urlHost = '[' + urlHost + ']';
     }
     console.log();
-    console.log(`${color.magenta}prpl-server${color.reset}`);
-    console.log(`${color.blue}http://${urlHost}:${addr.port}${color.reset}`);
+    console.log(ansi.format('[magenta bold]{prpl-server}'));
+    console.log(ansi.format(`[blue]{http://${urlHost}:${addr.port}}`));
     console.log(`serving ${args.root}`);
     console.log();
   });
