@@ -11,7 +11,7 @@
   "author": "The Polymer Project Authors",
   "license": "BSD-3-Clause",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -Rf lib/ && tsc",
     "build:watch": "tsc --watch",
     "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
     "test": "npm run build && mocha",
@@ -28,10 +28,14 @@
     "watchy": "^0.6.7"
   },
   "dependencies": {
-    "@types/express": "^4.0.35",
+    "@types/node": "^7.0.18",
+    "@types/send": "^0.14.2",
     "@types/ua-parser-js": "^0.7.30",
     "@types/valid-url": "^1.0.2",
-    "express": "^4.15.2",
+    "ansi-escape-sequences": "^3.0.0",
+    "command-line-args": "^4.0.4",
+    "command-line-usage": "^4.0.0",
+    "send": "^0.15.2",
     "ua-parser-js": "^0.7.12",
     "valid-url": "^1.0.9"
   }
