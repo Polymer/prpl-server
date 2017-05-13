@@ -45,7 +45,7 @@ export function makeHandler(rootDir?: string, config?: ProjectConfig): (
     request: http.IncomingMessage, response: http.ServerResponse) => void {
   const root = rootDir || '.';
   console.info(`Serving files from "${root}".`);
-  const builds = loadBuilds(config, root);
+  const builds = loadBuilds(root, config);
 
   return function prplHandler(request, response) {
     // Serve the entrypoint for the root path, and for all other paths that
@@ -124,11 +124,11 @@ class Build {
   }
 }
 
-function loadBuilds(config: ProjectConfig|undefined, root: string): Build[] {
+function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
   const builds: Build[] = [];
   const entrypoint = (config ? config.entrypoint : null) || 'index.html';
 
-  if (!config || !config.builds) {
+  if (!config || !config.builds || !config.builds.length) {
     // No builds were specified. Try to serve an entrypoint from the root
     // directory, with no capability requirements.
     console.warn(`WARNING: No builds configured.`);
@@ -151,6 +151,7 @@ function loadBuilds(config: ProjectConfig|undefined, root: string): Build[] {
         const pushManifestData =
             JSON.parse(fs.readFileSync(pushManifestPath, 'utf8')) as
             push.PushManifestData;
+        // Note this constructor throws if invalid.
         pushManifest = new push.PushManifest(pushManifestData);
       }
 
