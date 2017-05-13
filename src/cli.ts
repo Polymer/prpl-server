@@ -88,17 +88,17 @@ export function run(argv: string[]) {
     if (fs.existsSync(p)) {
       args.config = p;
     } else {
-      console.warn('warning: no config found');
+      console.warn('WARNING: No config found.');
     }
   }
   let config;
   if (args.config) {
-    console.info(`loading config from "${args.config}"`);
+    console.info(`Loading config from "${args.config}".`);
     config =
         JSON.parse(fs.readFileSync(args.config, 'utf8')) as prpl.ProjectConfig;
   }
 
-  const server = http.createServer(prpl.handler(args.root, config));
+  const server = http.createServer(prpl.makeHandler(args.root, config));
 
   server.listen(args.port, args.host, () => {
     const addr = server.address();

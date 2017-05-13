@@ -32,22 +32,22 @@ export interface ProjectConfig {
   }[];
 }
 
-// Matches "/foo/bar.png" but not "/foo.png/bar".
-const hasFileExtension = new RegExp('\\.[^/]*$');
+// Matches URLs like "/foo/bar.png" but not "/foo.png/bar".
+const hasFileExtension = /\.[^/]*$/;
 
 // TODO Service worker location should be configurable.
-const isServiceWorker = new RegExp('service-worker.js$');
+const isServiceWorker = /service-worker.js$/;
 
 /**
  * Return a new HTTP handler to serve a PRPL-style application.
  */
-export function handler(rootDir?: string, config?: ProjectConfig): (
+export function makeHandler(rootDir?: string, config?: ProjectConfig): (
     request: http.IncomingMessage, response: http.ServerResponse) => void {
   const root = rootDir || '.';
-  console.info(`serving files from "${root}"`);
+  console.info(`Serving files from "${root}".`);
   const builds = loadBuilds(config, root);
 
-  return function(request, response) {
+  return function prplHandler(request, response) {
     // Serve the entrypoint for the root path, and for all other paths that
     // don't have a corresponding static resource on disk. As a special
     // case, paths with file extensions are always excluded because they are
@@ -73,21 +73,21 @@ export function handler(rootDir?: string, config?: ProjectConfig): (
       return;
     }
 
-    const sendFile = (build && serveEntrypoint) ? build.entrypoint : pathname;
+    const fileToSend = (build && serveEntrypoint) ? build.entrypoint : pathname;
 
     // A service worker may only register with a scope above its own path if
     // permitted by this header.
     // https://www.w3.org/TR/service-workers-1/#service-worker-allowed
-    if (isServiceWorker.test(sendFile)) {
+    if (isServiceWorker.test(fileToSend)) {
       response.setHeader('Service-Worker-Allowed', '/');
     }
 
     if (build && build.pushManifest) {
-      build.pushManifest.setLinkHeaders(sendFile, response);
+      build.pushManifest.setLinkHeaders(fileToSend, response);
     }
 
-    send(request, sendFile, {root}).pipe(response);
-  }
+    send(request, fileToSend, {root}).pipe(response);
+  };
 }
 
 class Build {
@@ -131,14 +131,14 @@ function loadBuilds(config: ProjectConfig|undefined, root: string): Build[] {
   if (!config || !config.builds) {
     // No builds were specified. Try to serve an entrypoint from the root
     // directory, with no capability requirements.
-    console.warn(`warning: no builds configured`);
+    console.warn(`WARNING: No builds configured.`);
     builds.push(new Build(0, new Set(), path.join(root, entrypoint)));
 
   } else {
     for (let i = 0; i < config.builds.length; i++) {
       const build = config.builds[i];
       if (!build.name) {
-        console.warn(`warning: build at offset ${i} has no name; skipping`);
+        console.warn(`WARNING: Build at offset ${i} has no name; skipping.`);
         continue;
       }
 
@@ -147,7 +147,7 @@ function loadBuilds(config: ProjectConfig|undefined, root: string): Build[] {
           path.join(root, build.name, 'push-manifest.json');
       let pushManifest;
       if (fs.existsSync(pushManifestPath)) {
-        console.info(`detected push manifest "${pushManifestPath}"`);
+        console.info(`Detected push manifest "${pushManifestPath}".`);
         const pushManifestData =
             JSON.parse(fs.readFileSync(pushManifestPath, 'utf8')) as
             push.PushManifestData;
@@ -172,14 +172,16 @@ function loadBuilds(config: ProjectConfig|undefined, root: string): Build[] {
     hasFallback = hasFallback || build.requirements.size === 0;
     const requirements = Array.from(build.requirements.values());
     console.info(
-        `registered entrypoint "${build.entrypoint}" with capabilities ` +
-        `[${requirements.join(',')}]`);
+        `Registered entrypoint "${build.entrypoint}" with capabilities ` +
+        `[${requirements.join(',')}].`);
     if (!fs.existsSync(build.entrypoint)) {
-      console.warn(`warning: entrypoint "${build.entrypoint}" does not exist`);
+      console.warn(`WARNING: Entrypoint "${build.entrypoint}" does not exist.`);
     }
   }
   if (!hasFallback) {
-    console.warn(`warning: no hasFallback build registered`);
+    console.warn(
+        'WARNING: All builds have a capability requirement. ' +
+        'Some browsers will display an error. Consider a fallback build.');
   }
 
   return builds;

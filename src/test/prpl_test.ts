@@ -21,7 +21,7 @@ suite('prpl server', function() {
   let host: string;
 
   suiteSetup((done) => {
-    server = http.createServer(prpl.handler('src/test/static'));
+    server = http.createServer(prpl.makeHandler('src/test/static'));
     server.listen(/* random */ 0, () => {
       host = `http://127.0.0.1:${server.address().port}`;
       done();
