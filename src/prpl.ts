@@ -168,9 +168,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
   builds.sort((a, b) => a.compare(b));
 
   // Sanity check.
-  let hasFallback = false;
   for (const build of builds) {
-    hasFallback = hasFallback || build.requirements.size === 0;
     const requirements = Array.from(build.requirements.values());
     console.info(
         `Registered entrypoint "${build.entrypoint}" with capabilities ` +
@@ -179,7 +177,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
       console.warn(`WARNING: Entrypoint "${build.entrypoint}" does not exist.`);
     }
   }
-  if (!hasFallback) {
+  if (!builds.find((b) => b.requirements.size === 0)) {
     console.warn(
         'WARNING: All builds have a capability requirement. ' +
         'Some browsers will display an error. Consider a fallback build.');
