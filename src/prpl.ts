@@ -132,7 +132,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
     // No builds were specified. Try to serve an entrypoint from the root
     // directory, with no capability requirements.
     console.warn(`WARNING: No builds configured.`);
-    builds.push(new Build(0, new Set(), path.join(root, entrypoint)));
+    builds.push(new Build(0, new Set(), entrypoint));
 
   } else {
     for (let i = 0; i < config.builds.length; i++) {
@@ -158,7 +158,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
       builds.push(new Build(
           i,
           new Set(build.browserCapabilities),
-          path.join(root, build.name, entrypoint),
+          path.join(build.name, entrypoint),
           pushManifest));
     }
   }
