@@ -58,7 +58,7 @@ In this example we define two builds, one for modern browsers that support ES201
 
 The `browserCapabilities` field defines the browser features required for that build. prpl-server analyzes the request user-agent header and picks the best build for which all capabilities are met. If multiple builds are compatible, the one with more capabilities is preferred. If there is a tie, the build that comes earlier in the configuration file wins.
 
-You should always include a fallback build with no capability requirements. If you don't, prpl-server will warn at startup, and will return a 400 error on entrypoint requests to browsers for which no build can be served.
+You should always include a fallback build with no capability requirements. If you don't, prpl-server will warn at startup, and will return a 500 error on entrypoint requests to browsers for which no build can be served.
 
 ## Entrypoint
 
@@ -74,13 +74,13 @@ Note that because the entrypoint is served from many URLs, and varies by user-ag
 
 Since prpl-server serves resources from build subdirectories, your application source can't know the absolute URLs of build-specific resources upfront.
 
-For most documents in your application, the solution is to use relative URLs to refer to other resources in the same build, and absolute URLs to refer to resources shared across builds. However, since the *entrypoint* is served from URLs that do not match its location in the build tree, relative URLs will not resolve correctly.
+For most documents in your application, the solution is to use relative URLs to refer to other resources in the build, and absolute URLs to refer to resources outside of the build (e.g. static assets, APIs). However, since the *entrypoint* is served from URLs that do not match its location in the build tree, relative URLs will not resolve correctly.
 
-The solution we recommend is to place a [base](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base) tag in your entrypoint to anchor its relative URLs to the correct build subdirectory, regardless of the URL the entrypoint was served from. You may then use relative URLs to refer to build-specific resources from your entrypoint, as though you were in your build subdirectory. Put `<base href="/">` in your source entrypoint, so that URLs resolve when serving your source directly during development. In your build pipeline, update each entrypoint's base tag to match its build subdirectory (e.g. `<base href="/modern/">`).
+The solution we recommend is to place a [`<base>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base) tag in your entrypoint to anchor its relative URLs to the correct build subdirectory, regardless of the URL the entrypoint was served from. You may then use relative URLs to refer to build-specific resources from your entrypoint, as though you were in your build subdirectory. Put `<base href="/">` in your source entrypoint, so that URLs resolve when serving your source directly during development. In your build pipeline, update each entrypoint's base tag to match its build subdirectory (e.g. `<base href="/modern/">`).
 
 If you are using polymer-cli, set `{basePath: true}` on each build configuration to perform this base tag update automatically.
 
-Note that base tags only affect relative URLs, so to refer to resources shared across builds from your entrypoint, use absolute URLs as you normally would.
+Note that `<base>` tags only affect relative URLs, so to refer to resources outside of the build from your entrypoint, use absolute URLs as you normally would.
 
 ## HTTP/2 Server Push
 
@@ -95,19 +95,21 @@ If you are using polymer-cli, set `{basePath: true}` on your builds so that the 
 
 ### Link preload headers
 
-prpl-server is designed to be used behind an HTTP/2 reverse proxy, and currently does not generate push responses itself. Instead it sets [preload link](https://w3c.github.io/preload/#server-push-http-2) headers, which are intercepted by cooperating reverse proxy servers and upgraded into push responses. Environments that implement this upgrading behavior include [Apache](https://httpd.apache.org/docs/trunk/mod/mod_http2.html#h2push), [nghttpx](https://github.com/nghttp2/nghttp2#nghttpx---proxy), and [Google App Engine](https://cloud.google.com/appengine/).
+prpl-server is designed to be used behind an HTTP/2 reverse proxy, and currently does not generate push responses itself. Instead it sets [preload link](https://w3c.github.io/preload/#server-push-http-2) headers, which are intercepted by cooperating reverse proxy servers and upgraded into push responses. Servers that implement this upgrading behavior include [Apache](https://httpd.apache.org/docs/trunk/mod/mod_http2.html#h2push), [nghttpx](https://github.com/nghttp2/nghttp2#nghttpx---proxy), and [Google App Engine](https://cloud.google.com/appengine/).
 
 ### Testing push locally
 
-To confirm that your push manifest is working during local development, you can look for `Link: <URL>; rel=preload` response headers in your browser dev tools.
+To confirm your push manifest is working during local development, you can look for `Link: <URL>; rel=preload` response headers in your browser dev tools.
 
-To see genuine push locally, you will need to run a local reverse proxy with TLS. [nghttpx](https://github.com/nghttp2/nghttp2#nghttpx---proxy) works well:
+To see genuine push locally, you will need to run a local HTTP/2 reverse proxy such as [nghttpx](https://github.com/nghttp2/nghttp2#nghttpx---proxy):
 
 - Install nghttpx ([Homebrew](http://brewformulas.org/Nghttp2), [Ubuntu](http://packages.ubuntu.com/zesty/nghttp2), [source](https://github.com/nghttp2/nghttp2#building-from-git)).
-- Generate a self-signed SSL certificate and key file.
-- Run prpl-server (here using the default host and port).
-- Run `nghttpx -f127.0.0.1,8443 -b127.0.0.1,8080' server.key server.crt --no-ocsp`
+- Generate a self-signed TLS certificate, e.g. `openssl req -newkey rsa:2048 -x509 -nodes -keyout server.key -out server.crt`
+- Start prpl-server (assuming default `127.0.0.1:8080`).
+- Start nghttpx: `nghttpx -f127.0.0.1,8443 -b127.0.0.1,8080 server.key server.crt --no-ocsp`
 - Visit `https://localhost:8443`. In Chrome, Push responses will show up in the Network tab as Initiator: Push / Other.
+
+Note that Chrome will not allow a service worker to be registered over HTTPS with a self-signed certe. You can enable [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost) to bypass this check. See [this page](https://www.chromium.org/blink/serviceworker/service-worker-faq) for more tips on developing service workers in Chrome.
 
 ## Service Workers
 
