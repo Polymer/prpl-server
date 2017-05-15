@@ -12,7 +12,9 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
+import * as fs from 'fs';
 import * as http from 'http';
+import * as path from 'path';
 
 import * as prpl from './prpl';
 
@@ -44,6 +46,12 @@ const argDefs = [
     defaultValue: '.',
     description: 'Serve files relative to this directory (default ".").',
   },
+  {
+    name: 'config',
+    type: String,
+    description:
+        'JSON configuration file (default "<root>/polymer.json" if exists).',
+  },
 ];
 
 export function run(argv: string[]) {
@@ -73,7 +81,24 @@ export function run(argv: string[]) {
     throw new Error('invalid --root');
   }
 
-  const server = http.createServer(prpl.handler(args.root));
+  // If specified explicitly, a missing config file will error. Otherwise, try
+  // the default location and only warn when it's missing.
+  if (!args.config) {
+    const p = path.join(args.root, 'polymer.json');
+    if (fs.existsSync(p)) {
+      args.config = p;
+    } else {
+      console.warn('WARNING: No config found.');
+    }
+  }
+  let config;
+  if (args.config) {
+    console.info(`Loading config from "${args.config}".`);
+    config =
+        JSON.parse(fs.readFileSync(args.config, 'utf8')) as prpl.ProjectConfig;
+  }
+
+  const server = http.createServer(prpl.makeHandler(args.root, config));
 
   server.listen(args.port, args.host, () => {
     const addr = server.address();
@@ -82,9 +107,8 @@ export function run(argv: string[]) {
       urlHost = '[' + urlHost + ']';
     }
     console.log();
-    console.log(ansi.format('[magenta bold]{prpl-server}'));
+    console.log(ansi.format('[magenta bold]{prpl-server} listening'));
     console.log(ansi.format(`[blue]{http://${urlHost}:${addr.port}}`));
-    console.log(`serving ${args.root}`);
     console.log();
   });
 }
