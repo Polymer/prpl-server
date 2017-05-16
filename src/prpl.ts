@@ -91,11 +91,22 @@ export function makeHandler(rootDir?: string, config?: ProjectConfig): (
 }
 
 class Build {
+  public pushManifest?: push.PushManifest;
+
   constructor(
       private configOrder: number,
       public requirements: Set<capabilities.BrowserCapability>,
       public entrypoint: string,
-      public pushManifest?: push.PushManifest) {
+      buildDir: string) {
+    // TODO Push manifest location should be configurable.
+    const pushManifestPath = path.join(buildDir, 'push-manifest.json');
+    if (fs.existsSync(pushManifestPath)) {
+      console.info(`Detected push manifest "${pushManifestPath}".`);
+      // Note this constructor throws if invalid.
+      this.pushManifest = new push.PushManifest(
+          JSON.parse(fs.readFileSync(pushManifestPath, 'utf8')) as
+          push.PushManifestData);
+    }
   }
 
   /**
@@ -132,7 +143,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
     // No builds were specified. Try to serve an entrypoint from the root
     // directory, with no capability requirements.
     console.warn(`WARNING: No builds configured.`);
-    builds.push(new Build(0, new Set(), entrypoint));
+    builds.push(new Build(0, new Set(), entrypoint, root));
 
   } else {
     for (let i = 0; i < config.builds.length; i++) {
@@ -141,25 +152,11 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
         console.warn(`WARNING: Build at offset ${i} has no name; skipping.`);
         continue;
       }
-
-      // TODO Push manifest location should be configurable.
-      const pushManifestPath =
-          path.join(root, build.name, 'push-manifest.json');
-      let pushManifest;
-      if (fs.existsSync(pushManifestPath)) {
-        console.info(`Detected push manifest "${pushManifestPath}".`);
-        const pushManifestData =
-            JSON.parse(fs.readFileSync(pushManifestPath, 'utf8')) as
-            push.PushManifestData;
-        // Note this constructor throws if invalid.
-        pushManifest = new push.PushManifest(pushManifestData);
-      }
-
       builds.push(new Build(
           i,
           new Set(build.browserCapabilities),
           path.join(build.name, entrypoint),
-          pushManifest));
+          path.join(root, build.name)));
     }
   }
 

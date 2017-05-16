@@ -26,29 +26,17 @@ suite('prpl server', function() {
   let host: string;
   let port: number;
 
-  suiteSetup((done) => {
-    const config = {
-      builds: [
-        {
-          name: 'fallback',
-        },
-        {
-          name: 'es2015',
-          browserCapabilities: ['es2015' as capabilities.BrowserCapability],
-        },
-      ],
-    };
-    server = http.createServer(prpl.makeHandler('src/test/static', config));
-    server.listen(/* random */ 0, () => {
-      host = server.address().address;
-      port = server.address().port;
-      done();
-    });
-  });
-
-  suiteTeardown((done) => {
-    server.close(done);
-  });
+  const startServer =
+      (root: string, config?: prpl.ProjectConfig): Promise<void> => {
+        server = http.createServer(prpl.makeHandler(root, config));
+        return new Promise<void>((resolve) => {
+          server.listen(/* random */ 0, () => {
+            host = server.address().address;
+            port = server.address().port;
+            resolve();
+          });
+        });
+      };
 
   const get = (path: string, ua?: string): Promise<
       {code: number, data: string, headers: {[key: string]: string}}> => {
@@ -64,66 +52,116 @@ suite('prpl server', function() {
     });
   };
 
-  suite('with low capability user agent', () => {
-    test('serves entrypoint from root', async () => {
-      const {code, data} = await get('/');
-      assert.equal(code, 200);
-      assert.include(data, 'fallback entrypoint');
+  suite('configured with multiple builds', () => {
+
+    suiteSetup(async () => {
+      await startServer('src/test/static', {
+        builds: [
+          {
+            name: 'fallback',
+          },
+          {
+            name: 'es2015',
+            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+          },
+        ],
+      });
     });
 
-    test('serves entrypoint for application route', async () => {
-      const {code, data} = await get('/foo/bar');
-      assert.equal(code, 200);
-      assert.include(data, 'fallback entrypoint');
+    suiteTeardown((done) => {
+      server.close(done);
     });
 
-    test('serves a fragment resource', async () => {
-      const {code, data} = await get('/fallback/fragment.html');
-      assert.equal(code, 200);
-      assert.include(data, 'fallback fragment');
+    suite('with low capability user agent', () => {
+      test('serves entrypoint from root', async () => {
+        const {code, data} = await get('/');
+        assert.equal(code, 200);
+        assert.include(data, 'fallback entrypoint');
+      });
+
+      test('serves entrypoint for application route', async () => {
+        const {code, data} = await get('/foo/bar');
+        assert.equal(code, 200);
+        assert.include(data, 'fallback entrypoint');
+      });
+
+      test('serves a fragment resource', async () => {
+        const {code, data} = await get('/fallback/fragment.html');
+        assert.equal(code, 200);
+        assert.include(data, 'fallback fragment');
+      });
+
+      test('serves a 404 for missing file with extension', async () => {
+        const {code} = await get('/foo.png');
+        assert.equal(code, 404);
+      });
     });
 
-    test('serves a 404 for missing file with extension', async () => {
-      const {code} = await get('/foo.png');
-      assert.equal(code, 404);
+    suite('with high capability user agent', () => {
+      test('serves entrypoint from root', async () => {
+        const {code, data} = await get('/', chrome);
+        assert.equal(code, 200);
+        assert.include(data, 'es2015 entrypoint');
+      });
+
+      test('serves entrypoint for application route', async () => {
+        const {code, data} = await get('/foo/bar', chrome);
+        assert.equal(code, 200);
+        assert.include(data, 'es2015 entrypoint');
+      });
+
+      test('serves a fragment resource', async () => {
+        const {code, data} = await get('/es2015/fragment.html', chrome);
+        assert.equal(code, 200);
+        assert.include(data, 'es2015 fragment');
+      });
+
+      test('serves a 404 for missing file with extension', async () => {
+        const {code} = await get('/foo.png', chrome);
+        assert.equal(code, 404);
+      });
+
+      test('sets push manifest link headers', async () => {
+        const {headers} = await get('/foo/bar', chrome);
+        assert.equal(
+            headers['link'],
+            ('</es2015/fragment.html>; rel=preload; as=document, ' +
+             '</es2015/serviceworker.js>; rel=preload; as=script'));
+      });
+
+      test('sets service-worker-allowed header', async () => {
+        const {headers} = await get('/es2015/service-worker.js', chrome);
+        assert.equal(headers['service-worker-allowed'], '/');
+      });
     });
   });
 
-  suite('with high capability user agent', () => {
-    test('serves entrypoint from root', async () => {
-      const {code, data} = await get('/', chrome);
+  suite('standalone with no builds', () => {
+
+    suiteSetup(async () => {
+      await startServer('src/test/static/standalone');
+    });
+
+    suiteTeardown((done) => {
+      server.close(done);
+    });
+
+    test('serves index.html by default', async () => {
+      const {code, data} = await get('/');
       assert.equal(code, 200);
-      assert.include(data, 'es2015 entrypoint');
+      assert.include(data, 'standalone entrypoint');
     });
 
-    test('serves entrypoint for application route', async () => {
-      const {code, data} = await get('/foo/bar', chrome);
+    test('services static files', async () => {
+      const {code, data} = await get('/fragment.html');
       assert.equal(code, 200);
-      assert.include(data, 'es2015 entrypoint');
+      assert.include(data, 'standalone fragment');
     });
 
-    test('serves a fragment resource', async () => {
-      const {code, data} = await get('/es2015/fragment.html', chrome);
-      assert.equal(code, 200);
-      assert.include(data, 'es2015 fragment');
-    });
-
-    test('serves a 404 for missing file with extension', async () => {
-      const {code} = await get('/foo.png', chrome);
-      assert.equal(code, 404);
-    });
-
-    test('sets link rel=preload headers from push manifest', async () => {
-      const {headers} = await get('/foo/bar', chrome);
+    test('sets push manifest link headers', async () => {
+      const {headers} = await get('/', chrome);
       assert.equal(
-          headers['link'],
-          ('</es2015/fragment.html>; rel=preload; as=document, ' +
-           '</es2015/serviceworker.js>; rel=preload; as=script'));
-    });
-
-    test('sets service-worker-allowed header for service worker', async () => {
-      const {headers} = await get('/es2015/service-worker.js', chrome);
-      assert.equal(headers['service-worker-allowed'], '/');
+          headers['link'], '</fragment.html>; rel=preload; as=document');
     });
   });
 });
