@@ -2,7 +2,7 @@
 
 # prpl-server-node
 
-An HTTP server for Node designed for serving [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
+An HTTP server for Node designed to serve [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
 
 ## Usage
 
@@ -114,8 +114,8 @@ To see genuine push locally, you will need to run a local HTTP/2 reverse proxy s
 - Start nghttpx: `nghttpx -f127.0.0.1,8443 -b127.0.0.1,8080 server.key server.crt --no-ocsp`
 - Visit `https://localhost:8443`. In Chrome, Push responses will show up in the Network tab as Initiator: Push / Other.
 
-Note that Chrome will not allow a service worker to be registered over HTTPS with a self-signed certe. You can enable [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost) to bypass this check. See [this page](https://www.chromium.org/blink/serviceworker/service-worker-faq) for more tips on developing service workers in Chrome.
+Note that Chrome will not allow a service worker to be registered over HTTPS with a self-signed certificate. You can enable [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost) to bypass this check. See [this page](https://www.chromium.org/blink/serviceworker/service-worker-faq) for more tips on developing service workers in Chrome.
 
 ## Service Workers
 
-prpl-server sets the [`Service-Worker-Allowed`](https://www.w3.org/TR/service-workers-1/#service-worker-allowed) header to `/` for any request path ending with `service-worker.js`. This allows a service worker served from a build subdirectory to be registered with a scope outside of that directory.
+prpl-server sets the [`Service-Worker-Allowed`](https://www.w3.org/TR/service-workers-1/#service-worker-allowed) header to `/` for any request path ending with `service-worker.js`. This allows a service worker served from a build subdirectory to be registered with a scope outside of that directory, e.g. `register('service-worker.js', {scope: '/'})`.
