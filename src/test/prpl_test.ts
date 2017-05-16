@@ -50,19 +50,19 @@ suite('prpl server', function() {
     server.close(done);
   });
 
-  const get =
-      (path: string, ua?: string): Promise<{code: number, data: string}> => {
-        return new Promise((resolve) => {
-          http.get(
-              {host, port, path, headers: {'user-agent': ua || ''}},
-              (response) => {
-                const code = response.statusCode;
-                let data = '';
-                response.on('data', (chunk) => data += chunk);
-                response.on('end', () => resolve({code, data}));
-              });
-        });
-      };
+  const get = (path: string, ua?: string): Promise<
+      {code: number, data: string, headers: {[key: string]: string}}> => {
+    return new Promise((resolve) => {
+      http.get(
+          {host, port, path, headers: {'user-agent': ua || ''}}, (response) => {
+            const code = response.statusCode;
+            const headers = response.headers;
+            let data = '';
+            response.on('data', (chunk) => data += chunk);
+            response.on('end', () => resolve({code, data, headers}));
+          });
+    });
+  };
 
   suite('with low capability user agent', () => {
     test('serves entrypoint from root', async () => {
@@ -111,6 +111,19 @@ suite('prpl server', function() {
     test('serves a 404 for missing file with extension', async () => {
       const {code} = await get('/foo.png', chrome);
       assert.equal(code, 404);
+    });
+
+    test('sets link rel=preload headers from push manifest', async () => {
+      const {headers} = await get('/foo/bar', chrome);
+      assert.equal(
+          headers['link'],
+          ('</es2015/fragment.html>; rel=preload; as=document, ' +
+           '</es2015/serviceworker.js>; rel=preload; as=script'));
+    });
+
+    test('sets service-worker-allowed header for service worker', async () => {
+      const {headers} = await get('/es2015/service-worker.js', chrome);
+      assert.equal(headers['service-worker-allowed'], '/');
     });
   });
 });
