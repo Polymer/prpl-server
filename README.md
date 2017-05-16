@@ -8,7 +8,7 @@ An HTTP server for Node designed to serve [PRPL](https://developers.google.com/w
 
 ### As a binary
 ```sh
-$ npm install -g prpl-server
+$ yarn global add prpl-server
 $ prpl-server --root . --config polymer.json
 ```
 
