@@ -68,7 +68,7 @@ export function makeHandler(rootDir?: string, config?: ProjectConfig): (
     // that we only return this error for the entrypoint; we always serve fully
     // qualified static resources.
     if (!build && serveEntrypoint) {
-      response.writeHead(400);
+      response.writeHead(500);
       response.end('This browser is not supported.');
       return;
     }

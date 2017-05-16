@@ -53,7 +53,6 @@ suite('prpl server', function() {
   };
 
   suite('configured with multiple builds', () => {
-
     suiteSetup(async () => {
       await startServer('src/test/static', {
         builds: [
@@ -136,8 +135,30 @@ suite('prpl server', function() {
     });
   });
 
-  suite('standalone with no builds', () => {
+  suite('configured with no fallback build', () => {
+    suiteSetup(async () => {
+      await startServer('src/test/static', {
+        builds: [
+          {
+            name: 'es2015',
+            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+          },
+        ],
+      });
+    });
 
+    suiteTeardown((done) => {
+      server.close(done);
+    });
+
+    test('serves 500 error to unsupported browser', async () => {
+      const {code, data} = await get('/');
+      assert.equal(code, 500);
+      assert.include(data, 'not supported');
+    });
+  });
+
+  suite('standalone with no builds', () => {
     suiteSetup(async () => {
       await startServer('src/test/static/standalone');
     });
