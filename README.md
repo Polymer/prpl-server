@@ -8,21 +8,32 @@ An HTTP server for Node designed for serving [PRPL](https://developers.google.co
 
 ### As a binary
 ```sh
-npm install -g prpl-server
-prpl-server
+$ npm install -g prpl-server
+$ prpl-server --root . --config polymer.json
 ```
 
 ### As a library
-Yarn is recommended, but npm works too.
 
 ```sh
-yarn add prpl-server
+$ yarn add prpl-server
 ```
 
 ```js
 prpl = require('prpl-server');
-http = require('http');
-http.createServer(prpl.makeHandler()).listen(8080);
+http = require('express');
+
+const app = express()
+
+app.get('/api/launch', (req, res, next) => res.send('boom'));
+
+app.get('/*', prpl.makeHandler('.', {
+  builds: [
+    {name: 'modern', browserCapabilities: ['es2015', 'push']},
+    {name: 'fallback'},
+  ],
+}));
+
+app.listen(8080);
 ```
 
 ## Differential Serving
@@ -42,14 +53,8 @@ In this example we define two builds, one for modern browsers that support ES201
 {
   "entrypoint: "index.html",
   "builds": {
-    {
-      "name": "modern",
-      "browserCapabilities": ["push", "es2015"]
-    },
-    {
-      "name": "fallback",
-      "browserCapabilities": []
-    }
+    {"name": "modern", "browserCapabilities": ["es2015", "push"]},
+    {"name": "fallback"}
   }
 }
 ```
