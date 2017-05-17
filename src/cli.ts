@@ -12,8 +12,9 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
+import * as compression from 'compression';
+import * as express from 'express';
 import * as fs from 'fs';
-import * as http from 'http';
 import * as path from 'path';
 
 import * as prpl from './prpl';
@@ -98,9 +99,11 @@ export function run(argv: string[]) {
         JSON.parse(fs.readFileSync(args.config, 'utf8')) as prpl.ProjectConfig;
   }
 
-  const server = http.createServer(prpl.makeHandler(args.root, config));
+  const app = express();
+  app.use(compression());
+  app.use(prpl.makeHandler(args.root, config));
 
-  server.listen(args.port, args.host, () => {
+  const server = app.listen(args.port, args.host, () => {
     const addr = server.address();
     let urlHost = addr.address;
     if (addr.family === 'IPv6') {
