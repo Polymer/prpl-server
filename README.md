@@ -20,7 +20,7 @@ $ yarn add prpl-server
 
 ```js
 prpl = require('prpl-server');
-http = require('express');
+express = require('express');
 
 const app = express()
 
