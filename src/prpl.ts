@@ -155,7 +155,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
       builds.push(new Build(
           i,
           new Set(build.browserCapabilities),
-          path.join(build.name, entrypoint),
+          path.posix.join(build.name, entrypoint),
           path.join(root, build.name)));
     }
   }
