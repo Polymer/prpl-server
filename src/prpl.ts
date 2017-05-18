@@ -155,7 +155,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
       builds.push(new Build(
           i,
           new Set(build.browserCapabilities),
-          path.join(build.name, entrypoint),
+          path.posix.join(build.name, entrypoint),
           path.join(root, build.name)));
     }
   }
@@ -170,7 +170,11 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
     console.info(
         `Registered entrypoint "${build.entrypoint}" with capabilities ` +
         `[${requirements.join(',')}].`);
-    if (!fs.existsSync(build.entrypoint)) {
+    // Note `build.entrypoint` is relative to the server root, but that's not
+    // neccessarily our cwd.
+    // TODO Refactor to make filepath vs URL path and relative vs absolute
+    // values clearer.
+    if (!fs.existsSync(path.join(root, build.entrypoint))) {
       console.warn(`WARNING: Entrypoint "${build.entrypoint}" does not exist.`);
     }
   }
