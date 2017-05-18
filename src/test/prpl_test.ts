@@ -30,7 +30,7 @@ suite('prpl server', function() {
       (root: string, config?: prpl.ProjectConfig): Promise<void> => {
         server = http.createServer(prpl.makeHandler(root, config));
         return new Promise<void>((resolve) => {
-          server.listen(/* random */ 0, () => {
+          server.listen(/* random */ 0, '127.0.0.1', () => {
             host = server.address().address;
             port = server.address().port;
             resolve();
