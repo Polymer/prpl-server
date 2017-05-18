@@ -120,3 +120,37 @@ Note that Chrome will not allow a service worker to be registered over HTTPS wit
 ## Service Workers
 
 prpl-server sets the [`Service-Worker-Allowed`](https://www.w3.org/TR/service-workers-1/#service-worker-allowed) header to `/` for any request path ending with `service-worker.js`. This allows a service worker served from a build subdirectory to be registered with a scope outside of that directory, e.g. `register('service-worker.js', {scope: '/'})`.
+
+## Google App Engine Quickstart
+
+[Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node](https://cloud.google.com/nodejs/) and has a [free tier](https://cloud.google.com/free/). You can deploy prpl-server to App Engine with a few steps:
+
+1. Follow [these instructions](https://cloud.google.com/appengine/docs/flexible/nodejs/quickstart) to set up a Google Cloud project and install the Google Cloud SDK. As instructed, run the `gcloud init` command to authenticate and choose your project ID.
+
+2. `cd` to the directory you want to serve (e.g. your app's `build/` directory if you are using polymer-cli).
+
+3. Run `npm init` or `yarn init` and follow the prompts to create your `package.json`.
+
+4. Run `npm install --save prpl-server` or `yarn add prpl-server` to add prpl-server as a dependency.
+
+5. Edit your `package.json` to add a `start` script. This is the command App Engine runs when your app starts. You should also specify the version of Node your app requires.
+
+```json
+{
+  "scripts": {
+    "start": "prpl-server --host 0.0.0.0"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  }
+}
+```
+
+6. Create an `app.yaml` file. This tells App Engine that you want to use the Node environment:
+
+```yaml
+runtime: nodejs
+env: flex
+```
+
+7. Run `gcloud app deploy` to deploy to your App Engine project. `gcloud` will tell you the URL your app is being served from. For next steps, check out the Node on App Engine [documentation](https://cloud.google.com/nodejs/).
