@@ -14,6 +14,7 @@
 
 import {assert} from 'chai';
 import * as http from 'http';
+import * as path from 'path';
 
 import * as capabilities from '../capabilities';
 import * as prpl from '../prpl';
@@ -54,7 +55,7 @@ suite('prpl server', function() {
 
   suite('configured with multiple builds', () => {
     suiteSetup(async () => {
-      await startServer('src/test/static', {
+      await startServer(path.join('src', 'test', 'static'), {
         builds: [
           {
             name: 'fallback',
@@ -137,7 +138,7 @@ suite('prpl server', function() {
 
   suite('configured with no fallback build', () => {
     suiteSetup(async () => {
-      await startServer('src/test/static', {
+      await startServer(path.join('src', 'test', 'static'), {
         builds: [
           {
             name: 'es2015',
@@ -160,7 +161,7 @@ suite('prpl server', function() {
 
   suite('standalone with no builds', () => {
     suiteSetup(async () => {
-      await startServer('src/test/static/standalone');
+      await startServer(path.join('src', 'test', 'static', 'standalone'));
     });
 
     suiteTeardown((done) => {
