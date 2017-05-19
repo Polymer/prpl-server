@@ -53,6 +53,14 @@ const argDefs = [
     description:
         'JSON configuration file (default "<root>/polymer.json" if exists).',
   },
+  {
+    name: 'https-redirect',
+    type: Boolean,
+    description:
+        'Redirect HTTP requests to HTTPS with a 301. Assumes same hostname ' +
+        'and default port (443). Trusts X-Forwarded-* headers for detecting ' +
+        'protocol and hostname.',
+  },
 ];
 
 export function run(argv: string[]) {
@@ -100,7 +108,24 @@ export function run(argv: string[]) {
   }
 
   const app = express();
+
+  if (args['https-redirect']) {
+    // Trust X-Forwaded-* headers so that when we are behind a reverse proxy,
+    // our connection information is that of the original client (according to
+    // the proxy), not of the proxy itself.
+    app.set('trust proxy', true);
+
+    app.use((req, res, next) => {
+      if (req.secure) {
+        next();
+        return;
+      }
+      res.redirect(301, `https://${req.hostname}${req.url}`);
+    });
+  }
+
   app.use(compression());
+
   app.use(prpl.makeHandler(args.root, config));
 
   const server = app.listen(args.port, args.host, () => {
