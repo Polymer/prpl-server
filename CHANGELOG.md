@@ -1,6 +1,7 @@
 # Change Log
 
 ## [Unreleased]
+- Add HTTP to HTTPS redirection.
 
 ## [0.3.0] 2017-05-18
 - The commandline server now compresses responses.

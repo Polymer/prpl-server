@@ -121,6 +121,16 @@ Note that Chrome will not allow a service worker to be registered over HTTPS wit
 
 prpl-server sets the [`Service-Worker-Allowed`](https://www.w3.org/TR/service-workers-1/#service-worker-allowed) header to `/` for any request path ending with `service-worker.js`. This allows a service worker served from a build subdirectory to be registered with a scope outside of that directory, e.g. `register('service-worker.js', {scope: '/'})`.
 
+## HTTPS
+
+Your apps should always be served over HTTPS. It protects your user's data, and is *required* for features like service workers and HTTP/2.
+
+If the `--https-redirect` flag is set, prpl-server will redirect all HTTP requests to HTTPS. It sends a `301 Moved Permanently` redirect to an `https://` address with the same hostname on the default HTTPS port (443).
+
+prpl-server trusts [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto) and [`X-Forwarded-Host`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host) headers from your reverse proxy to determine the client's true protocol and hostname. Most reverse proxies automatically set these headers, but if you encounter issues with redirect loops, missing or incorrect `X-Forwarded-*` headers may be the cause.
+
+You should always use `--https-redirect` in production, unless your reverse proxy already performs HTTPS redirection.
+
 ## Google App Engine Quickstart
 
 [Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node](https://cloud.google.com/nodejs/) and has a [free tier](https://cloud.google.com/free/). You can deploy prpl-server to App Engine with a few steps:
@@ -133,12 +143,12 @@ prpl-server sets the [`Service-Worker-Allowed`](https://www.w3.org/TR/service-wo
 
 4. Run `npm install --save prpl-server` or `yarn add prpl-server` to add prpl-server as a dependency.
 
-5. Edit your `package.json` to add a `start` script. This is the command App Engine runs when your app starts. You should also specify the version of Node your app requires.
+5. Edit your `package.json` to add a `start` script. This is the command App Engine runs when your app starts. Configure `prpl-server` to listen on all hosts, and to redirect HTTP connections to HTTPS. You should also specify the version of Node your app requires via the `engines` section.
 
 ```json
 {
   "scripts": {
-    "start": "prpl-server --host 0.0.0.0"
+    "start": "prpl-server --host 0.0.0.0 --https-redirect"
   },
   "engines": {
     "node": ">=6.0.0"
