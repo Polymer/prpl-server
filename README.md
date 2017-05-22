@@ -142,7 +142,7 @@ You should always use `--https-redirect` in production, unless your reverse prox
 
 ## Google App Engine Quickstart
 
-[Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node](https://cloud.google.com/nodejs/). You can deploy prpl-server to App Engine with a few steps:
+[Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node](https://cloud.google.com/nodejs/) in its [Flexible Environment](https://cloud.google.com/appengine/docs/flexible/). You can deploy prpl-server to App Engine with a few steps:
 
 1. Follow [these instructions](https://cloud.google.com/appengine/docs/flexible/nodejs/quickstart) to set up a Google Cloud project and install the Google Cloud SDK. As instructed, run the `gcloud init` command to authenticate and choose your project ID.
 
