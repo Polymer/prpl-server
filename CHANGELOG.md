@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [0.5.0] 2017-05-22
 - Add `serviceworker` to browser capability detection.
 
 ## [0.4.0] 2017-05-19
