@@ -17,8 +17,7 @@ import * as capabilities from '../capabilities';
 
 function assertBrowserCapabilities(
     userAgent: string, expect: capabilities.BrowserCapability[]) {
-  assert.deepEqual(
-      capabilities.browserCapabilities(userAgent), new Set(expect));
+  assert.sameMembers([...capabilities.browserCapabilities(userAgent)], expect);
 }
 
 suite('capabilities', function() {
@@ -29,7 +28,7 @@ suite('capabilities', function() {
   test('chrome has all the capabilities', () => {
     assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36',
-        ['es2015', 'push']);
+        ['es2015', 'push', 'serviceworker']);
   });
 
   test('edge es2015 support is predicated on minor browser version', () => {
@@ -44,10 +43,10 @@ suite('capabilities', function() {
   test('safari push capability is predicated on macOS version', () => {
     assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30',
-        ['push']);
+        ['es2015']);
     assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30',
-        ['push']);
+        ['es2015', 'push']);
   });
 
   test('parseVersion parses with fallback to -1', () => {
