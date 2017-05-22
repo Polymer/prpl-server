@@ -66,6 +66,15 @@ The `browserCapabilities` field defines the browser features required for that b
 
 You should always include a fallback build with no capability requirements. If you don't, prpl-server will warn at startup, and will return a 500 error on entrypoint requests to browsers for which no build can be served.
 
+The following keywords are supported. See also [capabilities.ts](https://github.com/Polymer/prpl-server-node/blob/master/src/capabilities.ts) for the latest browser support matrix.
+
+| Keyword       | Description
+| :----         | :----
+| es2015        | [ECMAScript 2015 (aka ES6)](https://developers.google.com/web/shows/ttt/series-2/es2015)
+| push          | [HTTP/2 Server Push](https://developers.google.com/web/fundamentals/performance/http2/#server-push)
+| serviceworker | [Service Worker API](https://developers.google.com/web/fundamentals/getting-started/primers/service-workers)
+
+
 ## Entrypoint
 
 In the [PRPL pattern](https://developers.google.com/web/fundamentals/performance/prpl-pattern/), the *entrypoint* is a small HTML file that acts as the application bootstrap.
