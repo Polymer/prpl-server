@@ -53,10 +53,10 @@ In this example we define two builds, one for modern browsers that support ES201
 ```
 {
   "entrypoint: "index.html",
-  "builds": {
+  "builds": [
     {"name": "modern", "browserCapabilities": ["es2015", "push"]},
     {"name": "fallback"}
-  }
+  ]
 }
 ```
 
