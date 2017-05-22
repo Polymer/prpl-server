@@ -28,7 +28,7 @@ suite('capabilities', function() {
   test('chrome has all the capabilities', () => {
     assertBrowserCapabilities(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36',
-        ['es2015', 'push']);
+        ['es2015', 'push', 'serviceworker']);
   });
 
   test('edge es2015 support is predicated on minor browser version', () => {

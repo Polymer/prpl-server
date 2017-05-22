@@ -1,6 +1,7 @@
 # Change Log
 
 ## [Unreleased]
+- Add `serviceworker` to browser capability detection.
 
 ## [0.4.0] 2017-05-19
 - Add HTTP to HTTPS redirection.

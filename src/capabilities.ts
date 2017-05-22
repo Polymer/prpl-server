@@ -21,52 +21,65 @@ export type BrowserCapability =
     // ECMAScript 2015 (aka ES6).
     'es2015' |
     // HTTP/2 Server Push.
-    'push';
+    'push' |
+    // Service Worker API.
+    'serviceworker';
 
 type UserAgentPredicate = (ua: UAParser) => boolean;
 
-const browserPredicates:
-    {[browser: string]: {[key in BrowserCapability]: UserAgentPredicate}} = {
-      'Chrome': {
-        es2015: since(49),
-        push: since(41),
-      },
-      'Chromium': {
-        es2015: since(49),
-        push: since(41),
-      },
-      'OPR': {
-        es2015: since(36),
-        push: since(28),
-      },
-      'Vivaldi': {
-        es2015: since(1),
-        push: since(1),
-      },
-      'Mobile Safari': {
-        es2015: since(10),
-        push: since(9, 2),
-      },
-      'Safari': {
-        es2015: since(10),
-        push: (ua) => {
-          return versionAtLeast([9], parseVersion(ua.getBrowser().version)) &&
-              // HTTP/2 on desktop Safari requires macOS 10.11 according to
-              // caniuse.com.
-              versionAtLeast([10, 11], parseVersion(ua.getOS().version));
-        },
-      },
-      'Edge': {
-        // Edge versions before 15.15063 may contain a JIT bug affecting ES6
-        // constructors (https://github.com/Microsoft/ChakraCore/issues/1496).
-        es2015: since(15, 15063),
-        push: since(12),
-      },
-      'Firefox': {
-        es2015: since(51),
-        push: since(36),
-      },
-    };
+const browserPredicates: {
+  [browser: string]: {[key in BrowserCapability]: UserAgentPredicate}
+} = {
+  'Chrome': {
+    es2015: since(49),
+    push: since(41),
+    serviceworker: since(45),
+  },
+  'Chromium': {
+    es2015: since(49),
+    push: since(41),
+    serviceworker: since(45),
+  },
+  'OPR': {
+    es2015: since(36),
+    push: since(28),
+    serviceworker: since(32),
+  },
+  'Vivaldi': {
+    es2015: since(1),
+    push: since(1),
+    serviceworker: since(1),
+  },
+  'Mobile Safari': {
+    es2015: since(10),
+    push: since(9, 2),
+    serviceworker: () => false,
+  },
+  'Safari': {
+    es2015: since(10),
+    push: (ua) => {
+      return versionAtLeast([9], parseVersion(ua.getBrowser().version)) &&
+          // HTTP/2 on desktop Safari requires macOS 10.11 according to
+          // caniuse.com.
+          versionAtLeast([10, 11], parseVersion(ua.getOS().version));
+    },
+    // https://webkit.org/status/#specification-service-workers
+    serviceworker: () => false,
+  },
+  'Edge': {
+    // Edge versions before 15.15063 may contain a JIT bug affecting ES6
+    // constructors (https://github.com/Microsoft/ChakraCore/issues/1496).
+    es2015: since(15, 15063),
+    push: since(12),
+    // https://developer.microsoft.com/en-us/microsoft-edge/platform/status/serviceworker/
+    serviceworker: () => false,
+  },
+  'Firefox': {
+    es2015: since(51),
+    push: since(36),
+    serviceworker: since(44),
+  },
+};
 
 /**
  * Return the set of capabilities for a user agent string.
