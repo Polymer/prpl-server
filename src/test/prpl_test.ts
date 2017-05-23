@@ -95,6 +95,21 @@ suite('prpl server', function() {
         const {code} = await get('/foo.png');
         assert.equal(code, 404);
       });
+
+      test('forbids traversal outside root', async () => {
+        const {code, data} = await get('/../secrets');
+        assert.equal(code, 403);
+        assert.equal(data, 'Forbidden');
+      });
+
+      test('forbids traversal outside root with matching prefix', async () => {
+        // Edge case where the resolved request path naively matches the root
+        // directory by prefix even though it's actually a sibling, not a child
+        // ("/static-secrets" begins with "/static").
+        const {code, data} = await get('/../static-secrets');
+        assert.equal(code, 403);
+        assert.equal(data, 'Forbidden');
+      });
     });
 
     suite('with high capability user agent', () => {
