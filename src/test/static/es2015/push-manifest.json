@@ -1,9 +1,9 @@
 {
-  "es2015/index.html": {
-    "es2015/fragment.html": {
+  "index.html": {
+    "fragment.html": {
       "type": "document"
     },
-    "es2015/serviceworker.js": {
+    "/es2015/serviceworker.js": {
       "type": "script"
     }
   }
