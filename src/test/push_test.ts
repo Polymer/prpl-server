@@ -86,4 +86,31 @@ suite('PushManifest', function() {
     assert.deepEqual(manifest.linkHeaders('/a.html'), expect);
     assert.deepEqual(manifest.linkHeaders('a.html'), expect);
   });
+
+  test('respects base path', () => {
+    const manifest = new push.PushManifest(
+        {
+          '/abs.html': {
+            'rel.html': {type: 'document'},
+            '/abs.html': {type: 'document'},
+          },
+          'rel.html': {
+            'rel.html': {type: 'document'},
+            '/abs.html': {type: 'document'},
+          },
+        },
+        'subdir');
+
+    assert.deepEqual(manifest.linkHeaders('/subdir/abs.html'), []);
+    assert.deepEqual(manifest.linkHeaders('/abs.html'), [
+      '</subdir/rel.html>; rel=preload; as=document',
+      '</abs.html>; rel=preload; as=document',
+    ]);
+
+    assert.deepEqual(manifest.linkHeaders('/rel.html'), []);
+    assert.deepEqual(manifest.linkHeaders('/subdir/rel.html'), [
+      '</subdir/rel.html>; rel=preload; as=document',
+      '</abs.html>; rel=preload; as=document',
+    ]);
+  });
 });

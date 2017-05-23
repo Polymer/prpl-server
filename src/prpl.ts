@@ -97,7 +97,8 @@ class Build {
       private configOrder: number,
       public requirements: Set<capabilities.BrowserCapability>,
       public entrypoint: string,
-      buildDir: string) {
+      buildDir: string,
+      serverRoot: string) {
     // TODO Push manifest location should be configurable.
     const pushManifestPath = path.join(buildDir, 'push-manifest.json');
     if (fs.existsSync(pushManifestPath)) {
@@ -105,7 +106,8 @@ class Build {
       // Note this constructor throws if invalid.
       this.pushManifest = new push.PushManifest(
           JSON.parse(fs.readFileSync(pushManifestPath, 'utf8')) as
-          push.PushManifestData);
+              push.PushManifestData,
+          path.relative(serverRoot, buildDir));
     }
   }
 
@@ -143,7 +145,7 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
     // No builds were specified. Try to serve an entrypoint from the root
     // directory, with no capability requirements.
     console.warn(`WARNING: No builds configured.`);
-    builds.push(new Build(0, new Set(), entrypoint, root));
+    builds.push(new Build(0, new Set(), entrypoint, root, root));
 
   } else {
     for (let i = 0; i < config.builds.length; i++) {
@@ -156,7 +158,8 @@ function loadBuilds(root: string, config: ProjectConfig|undefined): Build[] {
           i,
           new Set(build.browserCapabilities),
           path.posix.join(build.name, entrypoint),
-          path.join(root, build.name)));
+          path.join(root, build.name),
+          root));
     }
   }
 
