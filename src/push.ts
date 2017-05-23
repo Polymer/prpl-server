@@ -13,6 +13,7 @@
  */
 
 import * as http from 'http';
+import * as path from 'path';
 import * as validUrl from 'valid-url';
 
 /**
@@ -34,6 +35,11 @@ export class PushManifest {
    * the multi-file variant of the format described at
    * https://github.com/GoogleChrome/http2-push-manifest.
    *
+   * If `basePath` is set, relative paths in the push manifest (both sources
+   * and targets) will be interpreted as relative to this directory. Typically
+   * it should be set to the path from the server file root to the push
+   * manifest file.
+   *
    * Throws an exception if the given object does not match the manifest
    * format, if a resource is not a valid URI path, or if `type` is not one of
    * the valid request destinations
@@ -42,7 +48,7 @@ export class PushManifest {
    * Note that this class does not validate that resources exist on disk, since
    * we can't assume if or how the server maps resources to disk.
    */
-  constructor(manifest: PushManifestData) {
+  constructor(manifest: PushManifestData, basePath: string = '/') {
     for (const source of Object.keys(manifest)) {
       validatePath(source);
       const targets = new Map();
@@ -52,10 +58,10 @@ export class PushManifest {
         if (!requestDestinations.has(t)) {
           throw new Error(`invalid type: ${t}`);
         }
-        targets.set(addLeadingSlash(target), {type: t});
+        targets.set(normalizePath(target, basePath), {type: t});
       }
       if (targets.size) {
-        this.mapping.set(addLeadingSlash(source), targets);
+        this.mapping.set(normalizePath(source, basePath), targets);
       }
     }
   }
@@ -92,8 +98,12 @@ export class PushManifest {
   }
 }
 
+function normalizePath(s: string, basePath: string) {
+  return s.startsWith('/') ? s : path.posix.join(addLeadingSlash(basePath), s);
+}
+
 function addLeadingSlash(s: string) {
-  return s[0] === '/' ? s : '/' + s;
+  return s.startsWith('/') ? s : '/' + s;
 }
 
 function validatePath(s: string) {
