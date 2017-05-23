@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Relative push manifest paths are now interpreted as relative to the location of the push manifest file itself. Previously they were always interpreted as relative to the server root.
+- Extra safeguard against directory traversal attacks.
 
 ## [0.5.0] 2017-05-22
 - Add `serviceworker` to browser capability detection.

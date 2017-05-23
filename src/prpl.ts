@@ -41,22 +41,36 @@ const isServiceWorker = /service-worker.js$/;
 /**
  * Return a new HTTP handler to serve a PRPL-style application.
  */
-export function makeHandler(rootDir?: string, config?: ProjectConfig): (
+export function makeHandler(root?: string, config?: ProjectConfig): (
     request: http.IncomingMessage, response: http.ServerResponse) => void {
-  const root = rootDir || '.';
-  console.info(`Serving files from "${root}".`);
-  const builds = loadBuilds(root, config);
+  const absRoot = path.resolve(root || '.');
+  console.info(`Serving files from "${absRoot}".`);
+  const builds = loadBuilds(absRoot, config);
 
   return function prplHandler(request, response) {
+    const urlPath = url.parse(request.url || '/').pathname || '/';
+
+    // Let's be extra careful about directory traversal attacks, even though
+    // the `send` library should already ensure we don't serve any file outside
+    // our root. This should also prevent the `fs.existsSync` check we do next
+    // from leaking any file existence information (whether you got the
+    // entrypoint or a 403 from `send` might tell you if a file outside our
+    // root exists). Add the trailing path separator because otherwise "/foo"
+    // is a prefix of "/foo-secrets".
+    const absFilepath = path.normalize(path.join(absRoot, urlPath));
+    if (!absFilepath.startsWith(addTrailingPathSep(absRoot))) {
+      response.writeHead(403);
+      response.end('Forbidden');
+      return;
+    }
+
     // Serve the entrypoint for the root path, and for all other paths that
     // don't have a corresponding static resource on disk. As a special
     // case, paths with file extensions are always excluded because they are
     // likely to be not-found static resources rather than application
     // routes.
-    const pathname = url.parse(request.url || '/').pathname || '/';
-    const serveEntrypoint = pathname === '/' ||
-        (!hasFileExtension.test(pathname) &&
-         !fs.existsSync(path.join(root, pathname)));
+    const serveEntrypoint = urlPath === '/' ||
+        (!hasFileExtension.test(urlPath) && !fs.existsSync(absFilepath));
 
     // Find the highest ranked build suitable for this user agent.
     const clientCapabilities =
@@ -73,7 +87,7 @@ export function makeHandler(rootDir?: string, config?: ProjectConfig): (
       return;
     }
 
-    const fileToSend = (build && serveEntrypoint) ? build.entrypoint : pathname;
+    const fileToSend = (build && serveEntrypoint) ? build.entrypoint : urlPath;
 
     // A service worker may only register with a scope above its own path if
     // permitted by this header.
@@ -86,8 +100,12 @@ export function makeHandler(rootDir?: string, config?: ProjectConfig): (
       build.pushManifest.setLinkHeaders(fileToSend, response);
     }
 
-    send(request, fileToSend, {root}).pipe(response);
+    send(request, fileToSend, {root: absRoot}).pipe(response);
   };
+}
+
+function addTrailingPathSep(p: string): string {
+  return p.endsWith(path.sep) ? p : p + path.sep;
 }
 
 class Build {
@@ -101,8 +119,9 @@ class Build {
       serverRoot: string) {
     // TODO Push manifest location should be configurable.
     const pushManifestPath = path.join(buildDir, 'push-manifest.json');
+    const relPath = path.relative(serverRoot, pushManifestPath);
     if (fs.existsSync(pushManifestPath)) {
-      console.info(`Detected push manifest "${pushManifestPath}".`);
+      console.info(`Detected push manifest "${relPath}".`);
       // Note this constructor throws if invalid.
       this.pushManifest = new push.PushManifest(
           JSON.parse(fs.readFileSync(pushManifestPath, 'utf8')) as
