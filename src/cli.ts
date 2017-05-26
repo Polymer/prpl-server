@@ -27,7 +27,12 @@ const argDefs = [
   {
     name: 'help',
     type: Boolean,
-    description: 'Print this help text',
+    description: 'Print this help text.',
+  },
+  {
+    name: 'version',
+    type: Boolean,
+    description: 'Print the installed version.',
   },
   {
     name: 'host',
@@ -77,6 +82,11 @@ export function run(argv: string[]) {
         optionList: argDefs,
       }
     ]));
+    return;
+  }
+
+  if (args.version) {
+    console.log(require('../package.json').version);
     return;
   }
 
