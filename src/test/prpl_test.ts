@@ -12,11 +12,11 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
+import * as capabilities from 'browser-capabilities';
 import {assert} from 'chai';
 import * as http from 'http';
 import * as path from 'path';
 
-import * as capabilities from '../capabilities';
 import * as prpl from '../prpl';
 
 const chrome = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) ' +
@@ -39,8 +39,11 @@ suite('prpl server', function() {
         });
       };
 
-  const get = (path: string, ua?: string): Promise<
-      {code: number, data: string, headers: {[key: string]: string}}> => {
+  const get = (path: string, ua?: string): Promise<{
+    code: number | undefined,
+    data: string,
+    headers: {[key: string]: string}
+  }> => {
     return new Promise((resolve) => {
       http.get(
           {host, port, path, headers: {'user-agent': ua || ''}}, (response) => {

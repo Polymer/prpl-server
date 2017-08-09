@@ -18,9 +18,9 @@
     "test:watch": "watchy -w src -- npm run test"
   },
   "devDependencies": {
-    "@types/chai": "^3.5.2",
+    "@types/chai": "^4.0.2",
     "@types/mocha": "^2.2.41",
-    "chai": "^3.5.0",
+    "chai": "^4.1.1",
     "clang-format": "^1.0.50",
     "mocha": "^3.3.0",
     "source-map-support": "^0.4.15",
@@ -32,15 +32,14 @@
     "@types/express": "^4.0.35",
     "@types/node": "^7.0.18",
     "@types/send": "^0.14.2",
-    "@types/ua-parser-js": "^0.7.30",
     "@types/valid-url": "^1.0.2",
     "ansi-escape-sequences": "^3.0.0",
+    "browser-capabilities": "^0.2.0",
     "command-line-args": "^4.0.4",
     "command-line-usage": "^4.0.0",
     "compression": "^1.6.2",
     "express": "^4.15.2",
     "send": "^0.15.2",
-    "ua-parser-js": "^0.7.12",
     "valid-url": "^1.0.9"
   }
 }

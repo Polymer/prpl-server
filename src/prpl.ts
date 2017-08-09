@@ -12,13 +12,13 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
+import * as capabilities from 'browser-capabilities';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as path from 'path';
 import * as send from 'send';
 import * as url from 'url';
 
-import * as capabilities from './capabilities';
 import * as push from './push';
 
 // The subset of the polymer.json specification that we care about for serving.
