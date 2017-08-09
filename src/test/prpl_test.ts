@@ -39,8 +39,11 @@ suite('prpl server', function() {
         });
       };
 
-  const get = (path: string, ua?: string): Promise<
-      {code: number, data: string, headers: {[key: string]: string}}> => {
+  const get = (path: string, ua?: string): Promise<{
+    code: number | undefined,
+    data: string,
+    headers: {[key: string]: string}
+  }> => {
     return new Promise((resolve) => {
       http.get(
           {host, port, path, headers: {'user-agent': ua || ''}}, (response) => {

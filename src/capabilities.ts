@@ -25,7 +25,9 @@ export type BrowserCapability =
     // Service Worker API.
     'serviceworker';
 
-type UserAgentPredicate = (ua: UAParser) => boolean;
+// TODO: This should have type UAParser, but its typings are wrong so that
+// class can't be referenced as a type. Fix the typings.
+type UserAgentPredicate = (ua: any) => boolean;
 
 const browserPredicates: {
   [browser: string]: {[key in BrowserCapability]: UserAgentPredicate}
