@@ -12,11 +12,11 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
+import * as capabilities from 'browser-capabilities';
 import {assert} from 'chai';
 import * as http from 'http';
 import * as path from 'path';
 
-import * as capabilities from '../capabilities';
 import * as prpl from '../prpl';
 
 const chrome = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) ' +
