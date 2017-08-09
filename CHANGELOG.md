@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.8.0] 2017-08-09
+- Switch to https://github.com/Polymer/browser-capabilities library.
+- Add `modules` capability.
+- Declare TypeScript typings in package.
+
 ## [0.7.0] 2017-05-30
 - Add `--version` flag.
 
