@@ -4,6 +4,7 @@
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
   "repository": "git+https://github.com/Polymer/prpl-server-node.git",
   "main": "lib/prpl.js",
+  "types": "lib/prpl.d.ts",
   "bin": "bin/prpl-server",
   "engines": {
     "node": ">=6.0"
