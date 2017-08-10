@@ -22,6 +22,7 @@ import * as prpl from './prpl';
 const commandLineArgs = require('command-line-args') as any;
 const commandLineUsage = require('command-line-usage') as any;
 const ansi = require('ansi-escape-sequences') as any;
+const rendertron = require('rendertron-middleware') as any;
 
 const argDefs = [
   {
@@ -65,6 +66,12 @@ const argDefs = [
         'Redirect HTTP requests to HTTPS with a 301. Assumes same hostname ' +
         'and default port (443). Trusts X-Forwarded-* headers for detecting ' +
         'protocol and hostname.',
+  },
+  {
+    name: 'bot-proxy',
+    type: String,
+    description: 'Proxy requests from bots/crawlers to this URL. See ' +
+        'https://github.com/GoogleChrome/rendertron for more details.',
   },
 ];
 
@@ -119,12 +126,14 @@ export function run(argv: string[]) {
 
   const app = express();
 
-  if (args['https-redirect']) {
-    // Trust X-Forwaded-* headers so that when we are behind a reverse proxy,
-    // our connection information is that of the original client (according to
-    // the proxy), not of the proxy itself.
-    app.set('trust proxy', true);
+  // Trust X-Forwarded-* headers so that when we are behind a reverse proxy,
+  // our connection information is that of the original client (according to
+  // the proxy), not of the proxy itself. We need this for HTTPS redirection
+  // and bot rendering.
+  app.set('trust proxy', true);
 
+  if (args['https-redirect']) {
+    console.info(`Redirecting HTTP requests to HTTPS.`);
     app.use((req, res, next) => {
       if (req.secure) {
         next();
@@ -135,6 +144,14 @@ export function run(argv: string[]) {
   }
 
   app.use(compression());
+
+  if (args['bot-proxy']) {
+    console.info(`Proxying bots to "${args['bot-proxy']}".`);
+    app.use(rendertron.makeMiddleware({
+      proxyUrl: args['bot-proxy'],
+      injectShadyDom: true,
+    }));
+  }
 
   app.use(prpl.makeHandler(args.root, config));
 

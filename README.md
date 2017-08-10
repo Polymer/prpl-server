@@ -142,6 +142,14 @@ prpl-server trusts [`X-Forwarded-Proto`](https://developer.mozilla.org/en-US/doc
 
 You should always use `--https-redirect` in production, unless your reverse proxy already performs HTTPS redirection.
 
+## Rendering for Bots
+
+Many bots don't execute JavaScript when processing your application. This can cause your application to not render correctly when crawled by some search engines, social networks, and link rendering bots.
+
+One solution to this problem is [Rendertron](https://github.com/GoogleChrome/rendertron). Rendertron is a server which runs headless Chrome to render and serialize web pages for these bots, so all the content is contained in one network request. Use the `--bot-proxy` flag to instruct prpl-server to proxy requests from a known list of bots through a Rendertron server.
+
+Note that you can also use the [Rendertron middleware](https://github.com/GoogleChrome/rendertron/tree/master/middleware) directly if you have a custom Express server.
+
 ## Google App Engine Quickstart
 
 [Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node](https://cloud.google.com/nodejs/) in its [Flexible Environment](https://cloud.google.com/appengine/docs/flexible/). You can deploy prpl-server to App Engine with a few steps:

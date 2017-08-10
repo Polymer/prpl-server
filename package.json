@@ -40,6 +40,7 @@
     "command-line-usage": "^4.0.0",
     "compression": "^1.6.2",
     "express": "^4.15.2",
+    "rendertron-middleware": "^0.1.1",
     "send": "^0.15.2",
     "valid-url": "^1.0.9"
   }
