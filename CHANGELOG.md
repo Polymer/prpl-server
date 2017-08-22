@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [0.9.0] 2017-08-23
+- Add `--bot-proxy` flag to proxy requests from bots through [Rendertron](https://github.com/GoogleChrome/rendertron).
+
 ## [0.8.0] 2017-08-09
 - Switch to https://github.com/Polymer/browser-capabilities library.
 - Add `modules` capability.
