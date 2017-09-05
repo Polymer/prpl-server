@@ -27,18 +27,7 @@ suite('PushManifest', function() {
     });
   });
 
-  test('validates source resources', () => {
-    const valid = (s: string) => assert.doesNotThrow(
-        () => new push.PushManifest({[s]: {'/b.html': {type: 'document'}}}));
-    const invalid = (s: string) => assert.throws(
-        () => new push.PushManifest({[s]: {'/b.html': {type: 'document'}}}));
-
-    valid('a.html');
-    valid('/a.html');
-    invalid('<INVALID>');
-  });
-
-  test('validates target resources', () => {
+  test('validates resources', () => {
     const valid = (t: string) => assert.doesNotThrow(
         () => new push.PushManifest({'/a.html': {[t]: {type: 'document'}}}));
     const invalid = (t: string) => assert.throws(
@@ -112,5 +101,59 @@ suite('PushManifest', function() {
       '</subdir/rel.html>; rel=preload; as=document',
       '</abs.html>; rel=preload; as=document',
     ]);
+  });
+
+  test('supports patterns', () => {
+    const manifest = new push.PushManifest({
+      '/foo.*': {
+        '/dep.html': {type: 'document'},
+      },
+    });
+    const expect = [
+      '</dep.html>; rel=preload; as=document',
+    ];
+    assert.deepEqual(manifest.linkHeaders('/foo'), expect);
+    assert.deepEqual(manifest.linkHeaders('/foo/'), expect);
+    assert.deepEqual(manifest.linkHeaders('/foo/bar'), expect);
+  });
+
+  test('patterns are forced exact', () => {
+    const manifest = new push.PushManifest({
+      '/foo.html': {
+        '/dep.html': {type: 'document'},
+      },
+    });
+    assert.deepEqual(manifest.linkHeaders('/qux/foo.html'), []);
+    assert.deepEqual(manifest.linkHeaders('/foo.html.x'), []);
+  });
+
+  test('explicit exact patterns work', () => {
+    const manifest = new push.PushManifest(
+        {
+          '^/foo$': {
+            '/dep.html': {type: 'document'},
+          },
+        },
+        'subdir');
+    const expect = [
+      '</dep.html>; rel=preload; as=document',
+    ];
+    assert.deepEqual(manifest.linkHeaders('/foo'), expect);
+    assert.deepEqual(manifest.linkHeaders('/foo/bar'), []);
+    assert.deepEqual(manifest.linkHeaders('/qux/foo/bar'), []);
+  });
+
+  test('relative patterns work', () => {
+    const manifest = new push.PushManifest(
+        {
+          'foo.*': {
+            '/dep.html': {type: 'document'},
+          },
+        },
+        'subdir');
+    const expect = [
+      '</dep.html>; rel=preload; as=document',
+    ];
+    assert.deepEqual(manifest.linkHeaders('/subdir/foo/bar'), expect);
   });
 });
