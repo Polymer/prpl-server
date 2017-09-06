@@ -20,7 +20,7 @@ import * as validUrl from 'valid-url';
  * JSON format for a multi-file push manifest.
  */
 export interface PushManifestData {
-  [source: string]: {[target: string]: {type: string; weight?: number;}}
+  [pattern: string]: {[resource: string]: {type: string; weight?: number;}}
 }
 
 /**
@@ -28,17 +28,20 @@ export interface PushManifestData {
  * should be pre-emptively pushed to the client via HTTP/2 server push.
  */
 export class PushManifest {
-  private mapping = new Map<string, Map<string, {type: string}>>();
+  private mapping = new Array<[RegExp, Map<string, {type: string}>]>();
 
   /**
    * Create a new `PushManifest` from a JSON object which is expected to match
    * the multi-file variant of the format described at
    * https://github.com/GoogleChrome/http2-push-manifest.
    *
-   * If `basePath` is set, relative paths in the push manifest (both sources
-   * and targets) will be interpreted as relative to this directory. Typically
-   * it should be set to the path from the server file root to the push
-   * manifest file.
+   * The keys of this object are exact-match regular expression patterns that
+   * will be tested against the request URL path.
+   *
+   * If `basePath` is set, relative paths in the push manifest (both patterns
+   * and resources) will be interpreted as relative to this directory.
+   * Typically it should be set to the path from the server file root to the
+   * push manifest file.
    *
    * Throws an exception if the given object does not match the manifest
    * format, if a resource is not a valid URI path, or if `type` is not one of
@@ -49,45 +52,56 @@ export class PushManifest {
    * we can't assume if or how the server maps resources to disk.
    */
   constructor(manifest: PushManifestData, basePath: string = '/') {
-    for (const source of Object.keys(manifest)) {
-      validatePath(source);
-      const targets = new Map();
-      for (const target of Object.keys(manifest[source])) {
-        validatePath(target);
-        const t = manifest[source][target].type || '';
+    for (const pattern of Object.keys(manifest)) {
+      const resources = new Map();
+      for (const resource of Object.keys(manifest[pattern])) {
+        validatePath(resource);
+        const t = manifest[pattern][resource].type || '';
         if (!requestDestinations.has(t)) {
           throw new Error(`invalid type: ${t}`);
         }
-        targets.set(normalizePath(target, basePath), {type: t});
+        resources.set(normalizePath(resource, basePath), {type: t});
       }
-      if (targets.size) {
-        this.mapping.set(normalizePath(source, basePath), targets);
+      if (resources.size) {
+        let normalizedPattern;
+        if (pattern.startsWith('^')) {
+          normalizedPattern = pattern;
+        } else {
+          normalizedPattern = '^' + normalizePath(pattern, basePath);
+          if (!normalizedPattern.endsWith('$')) {
+            normalizedPattern += '$';
+          }
+        }
+        this.mapping.push([new RegExp(normalizedPattern), resources]);
       }
     }
   }
 
   /**
    * Set `Link: rel=preload` headers on the given HTTP `response` for each push
-   * resource associated with the `source` path.
+   * resource associated with `path`.
    *
    * A cooperating HTTP/2 server may intercept these headers and intiate a
    * server push for each resource.
    *
    * See https://w3c.github.io/preload/#server-push-http-2.
    */
-  setLinkHeaders(source: string, response: http.ServerResponse) {
-    response.setHeader('Link', this.linkHeaders(source));
+  setLinkHeaders(path: string, response: http.ServerResponse) {
+    response.setHeader('Link', this.linkHeaders(path));
   }
 
   /**
    * Return just the headers described at `setLinkHeaders`.
    */
-  linkHeaders(source: string): string[] {
+  linkHeaders(path: string): string[] {
     const headers = [];
-    const targets = this.mapping.get(addLeadingSlash(source));
-    if (targets) {
-      for (const [target, {type}] of targets.entries()) {
-        let header = `<${target}>; rel=preload`;
+    const normalizedPattern = addLeadingSlash(path);
+    for (const [pattern, resources] of this.mapping) {
+      if (!resources || !pattern.test(normalizedPattern)) {
+        continue;
+      }
+      for (const [resource, {type}] of resources.entries()) {
+        let header = `<${resource}>; rel=preload`;
         if (type) {
           header += `; as=${type}`;
         }
