@@ -6,5 +6,15 @@
     "/es2015/serviceworker.js": {
       "type": "script"
     }
+  },
+  "/foo/bar": {
+    "foo.html": {
+      "type": "document"
+    }
+  },
+  "fragment.html": {
+    "baz.html": {
+      "type": "document"
+    }
   }
 }

@@ -12,7 +12,6 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
-import * as http from 'http';
 import * as path from 'path';
 import * as validUrl from 'valid-url';
 
@@ -78,20 +77,13 @@ export class PushManifest {
   }
 
   /**
-   * Set `Link: rel=preload` headers on the given HTTP `response` for each push
-   * resource associated with `path`.
+   * Generate `Link: rel=preload` headers for each push resource associated
+   * with `path`.
    *
    * A cooperating HTTP/2 server may intercept these headers and intiate a
    * server push for each resource.
    *
    * See https://w3c.github.io/preload/#server-push-http-2.
-   */
-  setLinkHeaders(path: string, response: http.ServerResponse) {
-    response.setHeader('Link', this.linkHeaders(path));
-  }
-
-  /**
-   * Return just the headers described at `setLinkHeaders`.
    */
   linkHeaders(path: string): string[] {
     const headers = [];
