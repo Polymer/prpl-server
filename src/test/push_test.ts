@@ -13,7 +13,6 @@
  */
 
 import {assert} from 'chai';
-import * as http from 'http';
 import * as push from '../push';
 
 suite('PushManifest', function() {
@@ -36,31 +35,6 @@ suite('PushManifest', function() {
     valid('b.html');
     valid('/b.html');
     invalid('<INVALID>');
-  });
-
-  test('sets link headers with types', () => {
-    const manifest = new push.PushManifest({
-      '/a.html': {
-        '/b.html': {type: 'document'},
-        '/c.js': {type: 'script'},
-        '/d.html': {type: ''},
-      },
-    });
-    const expect = [
-      '</b.html>; rel=preload; as=document',
-      '</c.js>; rel=preload; as=script',
-      '</d.html>; rel=preload',
-    ];
-
-    let calls = 0;
-    manifest.setLinkHeaders('/a.html', {
-      setHeader(name: string, value: string[]) {
-        calls++;
-        assert.equal(name, 'Link');
-        assert.deepEqual(value, expect);
-      },
-    } as http.ServerResponse);
-    assert.equal(calls, 1);
   });
 
   test('normalizes leading slashes', () => {

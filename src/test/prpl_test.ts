@@ -150,11 +150,28 @@ suite('prpl server', function() {
         assert.equal(code, 404);
       });
 
-      test('sets push manifest link headers', async () => {
-        const {headers} = await get('/foo/bar', chrome);
+      test('sets push headers for fragment', async () => {
+        const {headers} = await get('/es2015/fragment.html', chrome);
+        assert.equal(
+            headers['link'], '</es2015/baz.html>; rel=preload; as=document');
+      });
+
+      test('sets push headers for explicit entrypoint', async () => {
+        const {headers} = await get('/es2015/index.html', chrome);
         assert.equal(
             headers['link'],
             ('</es2015/fragment.html>; rel=preload; as=document, ' +
+             '</es2015/serviceworker.js>; rel=preload; as=script'));
+      });
+
+      test('sets push headers for application route', async () => {
+        const {headers} = await get('/foo/bar', chrome);
+        assert.equal(
+            headers['link'],
+            // Note these headers are both those defined for the entrypoint by
+            // filename, and by application route.
+            ('</es2015/foo.html>; rel=preload; as=document, ' +
+             '</es2015/fragment.html>; rel=preload; as=document, ' +
              '</es2015/serviceworker.js>; rel=preload; as=script'));
       });
 

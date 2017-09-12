@@ -109,7 +109,15 @@ export function makeHandler(root?: string, config?: Config): (
     }
 
     if (build && build.pushManifest) {
-      build.pushManifest.setLinkHeaders(fileToSend, response);
+      const linkHeaders = build.pushManifest.linkHeaders(urlPath);
+      if (urlPath !== fileToSend) {
+        // Also check the filename against the push manifest. In the case of
+        // the entrypoint, these will be different (e.g. "/my/app/route" vs
+        // "/es2015/index.html"), and we want to support configuring pushes in
+        // terms of both.
+        linkHeaders.push(...build.pushManifest.linkHeaders(fileToSend));
+      }
+      response.setHeader('Link', linkHeaders);
     }
 
     const sendOpts = {
