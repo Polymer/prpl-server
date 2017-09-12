@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [0.10.1] 2017-09-12
 - Check the original URL path against the push manifest in addition to the resolved filename. This allows mapping application route patterns to push resources.
 
 ## [0.10.0] 2017-09-11
