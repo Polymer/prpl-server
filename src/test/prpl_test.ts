@@ -27,34 +27,45 @@ suite('prpl server', function() {
   let host: string;
   let port: number;
 
-  const startServer =
-      (root: string, config?: prpl.ProjectConfig): Promise<void> => {
-        server = http.createServer(prpl.makeHandler(root, config));
-        return new Promise<void>((resolve) => {
-          server.listen(/* random */ 0, '127.0.0.1', () => {
-            host = server.address().address;
-            port = server.address().port;
-            resolve();
-          });
+  const startServer = (root: string, config?: prpl.Config): Promise<void> => {
+    const handler = prpl.makeHandler(root, config);
+    server = http.createServer(
+        (request: http.IncomingMessage, response: http.ServerResponse) => {
+          // To help test caching behavior, if the request URL includes this
+          // magic string, we'll set the cache-control header to something
+          // custom before calling prpl-handler. This is how we allow users to
+          // take over control of the cache-control header.
+          if (request.url && request.url.includes('custom-cache')) {
+            response.setHeader('Cache-Control', 'custom-cache');
+          }
+          handler(request, response);
         });
-      };
+    return new Promise<void>((resolve) => {
+      server.listen(/* random */ 0, '127.0.0.1', () => {
+        host = server.address().address;
+        port = server.address().port;
+        resolve();
+      });
+    });
+  };
 
-  const get = (path: string, ua?: string): Promise<{
-    code: number | undefined,
-    data: string,
-    headers: {[key: string]: string}
-  }> => {
-    return new Promise((resolve) => {
-      http.get(
-          {host, port, path, headers: {'user-agent': ua || ''}}, (response) => {
+  const get =
+      (path: string, ua?: string, headers?: {[key: string]: string}): Promise<{
+        code: number | undefined,
+        data: string,
+        headers: {[key: string]: string}
+      }> => {
+        return new Promise((resolve) => {
+          const getHeaders = Object.assign({'user-agent': ua || ''}, headers);
+          http.get({host, port, path, headers: getHeaders}, (response) => {
             const code = response.statusCode;
             const headers = response.headers;
             let data = '';
             response.on('data', (chunk) => data += chunk);
             response.on('end', () => resolve({code, data, headers}));
           });
-    });
-  };
+        });
+      };
 
   suite('configured with multiple builds', () => {
     suiteSetup(async () => {
@@ -150,6 +161,22 @@ suite('prpl server', function() {
       test('sets service-worker-allowed header', async () => {
         const {headers} = await get('/es2015/service-worker.js', chrome);
         assert.equal(headers['service-worker-allowed'], '/');
+      });
+
+      test('sets default cache header on static file', async () => {
+        const {headers} = await get('/es2015/fragment.html', chrome);
+        assert.equal(headers['cache-control'], 'max-age=60');
+      });
+
+      test('sets zero cache header on entrypoint', async () => {
+        const {headers} = await get('/foo/bar', chrome);
+        assert.equal(headers['cache-control'], 'max-age=0');
+      });
+
+      test('doesn\'t set cache header if already set', async () => {
+        // See above explanation of `custom-cache` magic.
+        const {headers} = await get('/foo/bar?custom-cache', chrome);
+        assert.equal(headers['cache-control'], 'custom-cache');
       });
     });
   });

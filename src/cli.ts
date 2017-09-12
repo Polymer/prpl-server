@@ -73,6 +73,13 @@ const argDefs = [
     description: 'Proxy requests from bots/crawlers to this URL. See ' +
         'https://github.com/GoogleChrome/rendertron for more details.',
   },
+  {
+    name: 'cache-control',
+    type: String,
+    description:
+        'The Cache-Control header to send for all requests except the ' +
+        'entrypoint (default from config file or "max-age=60").',
+  },
 ];
 
 export function run(argv: string[]) {
@@ -117,12 +124,15 @@ export function run(argv: string[]) {
       console.warn('WARNING: No config found.');
     }
   }
-  let config;
+  let config: prpl.Config = {};
   if (args.config) {
     console.info(`Loading config from "${args.config}".`);
-    config =
-        JSON.parse(fs.readFileSync(args.config, 'utf8')) as prpl.ProjectConfig;
+    config = JSON.parse(fs.readFileSync(args.config, 'utf8')) as prpl.Config;
   }
+
+  if (args['cache-control']) {
+    config.cacheControl = args['cache-control'];
+  };
 
   const app = express();
 

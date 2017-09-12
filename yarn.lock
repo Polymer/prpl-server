@@ -1310,9 +1310,9 @@ remove-trailing-separator@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/remove-trailing-separator/-/remove-trailing-separator-1.0.2.tgz#69b062d978727ad14dc6b56ba4ab772fd8d70511"
 
-rendertron-middleware@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/rendertron-middleware/-/rendertron-middleware-0.1.0.tgz#9f20bffc1e2806b1f5ee08775abc0ae85f74f583"
+rendertron-middleware@^0.1.1:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/rendertron-middleware/-/rendertron-middleware-0.1.2.tgz#e14f186d282c1dad7498893adc75a59abd59e02e"
   dependencies:
     request "^2.81.0"
 
