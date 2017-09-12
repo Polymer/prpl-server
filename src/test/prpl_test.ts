@@ -178,6 +178,20 @@ suite('prpl server', function() {
         const {headers} = await get('/foo/bar?custom-cache', chrome);
         assert.equal(headers['cache-control'], 'custom-cache');
       });
+
+      test('sends etag response header', async () => {
+        const {headers} = await get('/es2015/fragment.html', chrome);
+        assert.isNotEmpty(headers['etag']);
+      });
+
+      test('respects etag request header', async () => {
+        const {headers} = await get('/es2015/fragment.html', chrome);
+        const {code, data} = await get('/es2015/fragment.html', chrome, {
+          'If-None-Match': headers['etag'],
+        });
+        assert.equal(code, 304);
+        assert.equal(data, '');
+      });
     });
   });
 
