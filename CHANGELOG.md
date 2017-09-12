@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Push manifest keys are now regular expression patterns instead of exact paths.
+- The `Cache-Control` header is now set to 1 minute by default (except for the entrypoint). Added the `cacheControl` config property and `--cache-control` flag to override.
 
 ## [0.9.0] 2017-08-23
 - Add `--bot-proxy` flag to proxy requests from bots through [Rendertron](https://github.com/GoogleChrome/rendertron).
