@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [0.10.0] 2017-09-11
 - Push manifest keys are now regular expression patterns instead of exact paths.
 - The `Cache-Control` header is now set to 1 minute by default (except for the entrypoint). Added the `cacheControl` config property and `--cache-control` flag to override.
 
