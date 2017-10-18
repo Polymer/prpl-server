@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.10.2] 2017-10-18
+- Require latest browser capabilities, which removes Firefox from push capable browsers due to https://bugzilla.mozilla.org/show_bug.cgi?id=1409570.
+- Bump Yarn lock dependencies.
+
 ## [0.10.1] 2017-09-12
 - Check the original URL path against the push manifest in addition to the resolved filename. This allows mapping application route patterns to push resources.
 

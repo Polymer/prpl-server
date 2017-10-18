@@ -1,6 +1,6 @@
 {
   "name": "prpl-server",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
   "repository": "git+https://github.com/Polymer/prpl-server-node.git",
   "main": "lib/prpl.js",
@@ -35,7 +35,7 @@
     "@types/send": "^0.14.2",
     "@types/valid-url": "^1.0.2",
     "ansi-escape-sequences": "^3.0.0",
-    "browser-capabilities": "^0.2.0",
+    "browser-capabilities": "^0.2.1",
     "command-line-args": "^4.0.4",
     "command-line-usage": "^4.0.0",
     "compression": "^1.6.2",
