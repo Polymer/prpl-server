@@ -26,6 +26,22 @@ export interface Config {
   // Defaults to `max-age=60`.
   cacheControl?: string;
 
+  // Serves a tiny self-unregistering service worker for any request path
+  // ending with `service-worker.js` that would otherwise have had a 404 Not
+  // Found response.
+  //
+  // This can be useful when the location of a service worker has changed, as
+  // it will prevent clients from getting stuck with an old service worker
+  // indefinitely.
+  //
+  // This problem arises because when a service worker updates, a 404 is
+  // treated as a failed update. It does not cause the service worker to be
+  // unregistered. See https://github.com/w3c/ServiceWorker/issues/204 for more
+  // discussion of this problem.
+  //
+  // Defaults to `true`.
+  unregisterMissingServiceWorkers?: boolean;
+
   // Below is the subset of the polymer.json specification that we care about
   // for serving. https://www.polymer-project.org/2.0/docs/tools/polymer-json
   // https://github.com/Polymer/polymer-project-config/blob/master/src/index.ts
@@ -51,6 +67,10 @@ export function makeHandler(root?: string, config?: Config): (
   console.info(`Serving files from "${absRoot}".`);
   const builds = loadBuilds(absRoot, config);
   const cacheControl = (config && config.cacheControl) || 'max-age=60';
+  const unregisterMissingServiceWorkers =
+      (config && config.unregisterMissingServiceWorkers != undefined) ?
+      config.unregisterMissingServiceWorkers :
+      true;
 
   return function prplHandler(request, response) {
     const urlPath = url.parse(request.url || '/').pathname || '/';
@@ -94,11 +114,22 @@ export function makeHandler(root?: string, config?: Config): (
 
     const fileToSend = (build && serveEntrypoint) ? build.entrypoint : urlPath;
 
-    // A service worker may only register with a scope above its own path if
-    // permitted by this header.
-    // https://www.w3.org/TR/service-workers-1/#service-worker-allowed
     if (isServiceWorker.test(fileToSend)) {
+      // A service worker may only register with a scope above its own path if
+      // permitted by this header.
+      // https://www.w3.org/TR/service-workers-1/#service-worker-allowed
       response.setHeader('Service-Worker-Allowed', '/');
+
+      // Automatically unregister service workers that no longer exist to
+      // prevent clients getting stuck with old service workers indefinitely.
+      if (unregisterMissingServiceWorkers && !fs.existsSync(absFilepath)) {
+        response.setHeader('Content-Type', 'application/javascript');
+        response.writeHead(200);
+        response.end(
+            `self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', () => self.registration.unregister());`);
+        return;
+      }
     }
 
     // Don't set the Cache-Control header if it's already set. This way another
