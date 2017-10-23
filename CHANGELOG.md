@@ -1,6 +1,7 @@
 # Change Log
 
 ## [Unreleased]
+- Add `unregisterMissingServiceWorkers` option (default true) which serves a tiny self-unregistering service worker for would-be 404 service worker requests, to prevent clients from getting stuck with invalid service workers indefinitely.
 
 ## [0.10.2] 2017-10-18
 - Require latest browser capabilities, which removes Firefox from push capable browsers due to https://bugzilla.mozilla.org/show_bug.cgi?id=1409570.

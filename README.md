@@ -132,7 +132,16 @@ Note that Chrome will not allow a service worker to be registered over HTTPS wit
 
 ## Service Workers
 
+### Scope header
 prpl-server sets the [`Service-Worker-Allowed`](https://www.w3.org/TR/service-workers-1/#service-worker-allowed) header to `/` for any request path ending with `service-worker.js`. This allows a service worker served from a build subdirectory to be registered with a scope outside of that directory, e.g. `register('service-worker.js', {scope: '/'})`.
+
+### 404 handling
+
+prpl-server automatically serves a tiny self-unregistering service worker for any request path ending with `service-worker.js` that would otherwise have had a `404 Not Found` response. To disable this behavior, set `unregisterMissingServiceWorkers: false` in your configuration file.
+
+This can be useful when the location of a service worker has changed, as it will prevent clients from getting stuck with an old service worker indefinitely.
+
+This problem arises because when a service worker updates, a `404` is treated as a failed update. It does not cause the service worker to be unregistered. See [w3c/ServiceWorker#204](https://github.com/w3c/ServiceWorker/issues/204) for more discussion of this problem.
 
 ## HTTPS
 

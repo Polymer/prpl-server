@@ -180,6 +180,14 @@ suite('prpl server', function() {
         assert.equal(headers['service-worker-allowed'], '/');
       });
 
+      test('automatically unregister missing service workers', async () => {
+        const {code, data, headers} = await get('/service-worker.js', chrome);
+        assert.equal(code, 200);
+        assert.equal(headers['content-type'], 'application/javascript');
+        assert.equal(headers['service-worker-allowed'], '/');
+        assert.include(data, 'registration.unregister');
+      });
+
       test('sets default cache header on static file', async () => {
         const {headers} = await get('/es2015/fragment.html', chrome);
         assert.equal(headers['cache-control'], 'max-age=60');
@@ -232,6 +240,29 @@ suite('prpl server', function() {
       const {code, data} = await get('/');
       assert.equal(code, 500);
       assert.include(data, 'not supported');
+    });
+  });
+
+  suite('configured with unregisterMissingServiceWorkers disabled', () => {
+    suiteSetup(async () => {
+      await startServer(path.join('src', 'test', 'static'), {
+        builds: [
+          {
+            name: 'es2015',
+            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+          },
+        ],
+        unregisterMissingServiceWorkers: false,
+      });
+    });
+
+    suiteTeardown((done) => {
+      server.close(done);
+    });
+
+    test('sends 404 for missing service worker', async () => {
+      const {code} = await get('/service-worker.js', chrome);
+      assert.equal(code, 404);
     });
   });
 
