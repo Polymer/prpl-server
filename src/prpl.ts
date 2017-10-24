@@ -26,6 +26,14 @@ export interface Config {
   // Defaults to `max-age=60`.
   cacheControl?: string;
 
+  // A custom error-handling logic function. The function must takes two 
+  // arguments, request and response, and must return a function with
+  // the argument error.
+  //
+  // This function could be useful if you want, by example, be able to
+  // render custom errors pages.
+  error?: Function;
+
   // Serves a tiny self-unregistering service worker for any request path
   // ending with `service-worker.js` that would otherwise have had a 404 Not
   // Found response.
@@ -156,7 +164,15 @@ self.addEventListener('activate', () => self.registration.unregister());`);
       // We handle the caching header ourselves.
       cacheControl: false,
     };
-    send(request, fileToSend, sendOpts).pipe(response);
+
+    let stream = send(request, fileToSend, sendOpts);
+
+    // Set a custom error-handling function
+    if(config && config.error) {
+      stream = stream.on('error', config.error(request, response))
+    }
+
+    stream.pipe(response);
   };
 }
 

@@ -293,4 +293,28 @@ suite('prpl server', function() {
           headers['link'], '</fragment.html>; rel=preload; as=document');
     });
   });
+
+  suite('configured with an error function', () => {
+    suiteSetup(async () => {
+      await startServer(path.join('src', 'test', 'static', 'standalone'), {
+        error: (req: any, res: any) => (err: any) => {
+          res.statusCode = err.status || 500
+
+          if(res.statusCode === 404) {
+            const url = req.url;
+            res.end(`Custom 404 error page for ${url}`);
+          } else {
+            res.end(err.message)
+          }
+        }
+      });
+    });
+
+    test('should return a 404 for a Not Found file', async () => {
+      const url = '/fragment/error.html';
+      const {code, data} = await get(url);
+      assert.equal(code, 404);
+      assert.include(data, `Custom 404 error page for ${url}`);
+    });
+  });
 });
