@@ -31,6 +31,7 @@
   "dependencies": {
     "@types/compression": "^0.0.33",
     "@types/express": "^4.0.35",
+    "@types/http-errors": "^1.6.1",
     "@types/node": "^7.0.18",
     "@types/send": "^0.14.2",
     "@types/valid-url": "^1.0.2",
@@ -40,6 +41,7 @@
     "command-line-usage": "^4.0.0",
     "compression": "^1.6.2",
     "express": "^4.15.2",
+    "http-errors": "^1.6.2",
     "rendertron-middleware": "^0.1.1",
     "send": "^0.15.2",
     "valid-url": "^1.0.9"

@@ -15,6 +15,7 @@
 import * as capabilities from 'browser-capabilities';
 import {assert} from 'chai';
 import * as http from 'http';
+import * as httpErrors from 'http-errors';
 import * as path from 'path';
 
 import * as prpl from '../prpl';
@@ -292,5 +293,61 @@ suite('prpl server', function() {
       assert.equal(
           headers['link'], '</fragment.html>; rel=preload; as=document');
     });
+  });
+
+  suite('configured with an error function', () => {
+    suiteSetup(async () => {
+      await startServer(path.join('src', 'test', 'static'), {
+        builds: [
+          {
+            name: 'es2015',
+            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+          },
+        ],
+        error: (req: http.IncomingMessage, res: http.ServerResponse, err: httpErrors.HttpError) => {
+              res.statusCode = err.status || 500
+              const customErrorPages = [403, 404, 500];
+              const hasCustomErrorPage =
+                  customErrorPages.includes(res.statusCode)
+
+              if (hasCustomErrorPage) {
+                res.end(`Custom ${res.statusCode} error page for ${req.url}`);
+              }
+              else {
+                res.end(err.message)
+              }
+            }
+      });
+    });
+
+    test(
+        'should render a custom 403 error page for directory traversal attack',
+        async () => {
+          const status = 403;
+          const url = '/../secrets';
+          const {code, data} = await get(url);
+          assert.equal(code, status);
+          assert.equal(data, `Custom ${status} error page for ${url}`);
+        });
+
+    test(
+        'should return a custom 404 error page for a Not Found file',
+        async () => {
+          const status = 404;
+          const url = '/fragment/error.html';
+          const {code, data} = await get(url);
+          assert.equal(code, status);
+          assert.include(data, `Custom ${status} error page for ${url}`);
+        });
+
+    test(
+        'should render a custom 500 error page to unsupported browsers',
+        async () => {
+          const status = 500;
+          const url = '/';
+          const {code, data} = await get(url);
+          assert.equal(code, status);
+          assert.equal(data, `Custom ${status} error page for ${url}`);
+        });
   });
 });
