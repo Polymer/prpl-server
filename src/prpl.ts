@@ -15,6 +15,7 @@
 import * as capabilities from 'browser-capabilities';
 import * as fs from 'fs';
 import * as http from 'http';
+import * as httpErrors from 'http-errors';
 import * as path from 'path';
 import * as send from 'send';
 import * as url from 'url';
@@ -26,13 +27,15 @@ export interface Config {
   // Defaults to `max-age=60`.
   cacheControl?: string;
 
-  // A custom error-handling logic function. The function must takes two 
+  // A custom error-handling logic function. The function must takes two
   // arguments, request and response, and must return a function with
-  // the argument error.
+  // the error argument.
   //
   // This function could be useful if you want, by example, be able to
   // render custom errors pages.
-  error?: Function;
+  error?:
+      (request: http.IncomingMessage,
+       response: http.ServerResponse) => (error: httpErrors.HttpError) => void;
 
   // Serves a tiny self-unregistering service worker for any request path
   // ending with `service-worker.js` that would otherwise have had a 404 Not
@@ -92,8 +95,12 @@ export function makeHandler(root?: string, config?: Config): (
     // is a prefix of "/foo-secrets".
     const absFilepath = path.normalize(path.join(absRoot, urlPath));
     if (!absFilepath.startsWith(addTrailingPathSep(absRoot))) {
-      response.writeHead(403);
-      response.end('Forbidden');
+      if (config && config.error) {
+        config.error(request, response)(httpErrors(403));
+      } else {
+        response.writeHead(403);
+        response.end('Forbidden');
+      }
       return;
     }
 
@@ -115,8 +122,12 @@ export function makeHandler(root?: string, config?: Config): (
     // that we only return this error for the entrypoint; we always serve fully
     // qualified static resources.
     if (!build && serveEntrypoint) {
-      response.writeHead(500);
-      response.end('This browser is not supported.');
+      if (config && config.error) {
+        config.error(request, response)(httpErrors(500));
+      } else {
+        response.writeHead(500);
+        response.end('This browser is not supported.');
+      }
       return;
     }
 
@@ -168,8 +179,8 @@ self.addEventListener('activate', () => self.registration.unregister());`);
     let stream = send(request, fileToSend, sendOpts);
 
     // Set a custom error-handling function
-    if(config && config.error) {
-      stream = stream.on('error', config.error(request, response))
+    if (config && config.error) {
+      stream = stream.on('error', config.error(request, response));
     }
 
     stream.pipe(response);
