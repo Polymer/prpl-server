@@ -27,15 +27,13 @@ export interface Config {
   // Defaults to `max-age=60`.
   cacheControl?: string;
 
-  // A custom error-handling logic function. The function must takes two
-  // arguments, request and response, and must return a function with
-  // the error argument.
+  // A custom error-handling logic function.
   //
   // This function could be useful if you want, by example, be able to
   // render custom errors pages.
   error?:
       (request: http.IncomingMessage,
-       response: http.ServerResponse) => (error: httpErrors.HttpError) => void;
+       response: http.ServerResponse, error: httpErrors.HttpError) => void;
 
   // Serves a tiny self-unregistering service worker for any request path
   // ending with `service-worker.js` that would otherwise have had a 404 Not
@@ -96,7 +94,7 @@ export function makeHandler(root?: string, config?: Config): (
     const absFilepath = path.normalize(path.join(absRoot, urlPath));
     if (!absFilepath.startsWith(addTrailingPathSep(absRoot))) {
       if (config && config.error) {
-        config.error(request, response)(httpErrors(403));
+        config.error(request, response, httpErrors(403));
       } else {
         response.writeHead(403);
         response.end('Forbidden');
@@ -123,7 +121,7 @@ export function makeHandler(root?: string, config?: Config): (
     // qualified static resources.
     if (!build && serveEntrypoint) {
       if (config && config.error) {
-        config.error(request, response)(httpErrors(500));
+        config.error(request, response, httpErrors(500));
       } else {
         response.writeHead(500);
         response.end('This browser is not supported.');
@@ -180,7 +178,8 @@ self.addEventListener('activate', () => self.registration.unregister());`);
 
     // Set a custom error-handling function
     if (config && config.error) {
-      stream = stream.on('error', config.error(request, response));
+      const errorFunction = (error:  httpErrors.HttpError) => config.error!(request, response, error)
+      stream = stream.on('error', errorFunction);
     }
 
     stream.pipe(response);

@@ -304,8 +304,7 @@ suite('prpl server', function() {
             browserCapabilities: ['es2015' as capabilities.BrowserCapability],
           },
         ],
-        error: (req: http.IncomingMessage, res: http.ServerResponse) =>
-            (err: httpErrors.HttpError) => {
+        error: (req: http.IncomingMessage, res: http.ServerResponse, err: httpErrors.HttpError) => {
               res.statusCode = err.status || 500
               const customErrorPages = [403, 404, 500];
               const hasCustomErrorPage =
