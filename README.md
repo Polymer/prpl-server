@@ -10,14 +10,14 @@ An HTTP server for Node designed to serve [PRPL](https://developers.google.com/w
 
 ### As a binary
 ```sh
-$ yarn global add prpl-server
+$ npm install -g prpl-server
 $ prpl-server --root . --config polymer.json
 ```
 
 ### As a library
 
 ```sh
-$ yarn add prpl-server
+$ npm install --save prpl-server
 ```
 
 ```js
@@ -207,9 +207,9 @@ Note that you can also use the [Rendertron middleware](https://github.com/Google
 
 2. `cd` to the directory you want to serve (e.g. your app's `build/` directory if you are using polymer-cli).
 
-3. Run `npm init` or `yarn init` and follow the prompts to create your `package.json`.
+3. Run `npm init` and follow the prompts to create your `package.json`.
 
-4. Run `npm install --save prpl-server` or `yarn add prpl-server` to add prpl-server as a dependency.
+4. Run `npm install --save prpl-server` to add prpl-server as a dependency.
 
 5. Edit your `package.json` to add a `start` script. This is the command App Engine runs when your app starts. Configure `prpl-server` to listen on all hosts, and to redirect HTTP connections to HTTPS. You should also specify the version of Node your app requires via the `engines` section.
 

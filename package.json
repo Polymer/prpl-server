@@ -23,20 +23,20 @@
     "@types/mocha": "^2.2.41",
     "chai": "^4.1.1",
     "clang-format": "^1.0.50",
-    "mocha": "^3.3.0",
-    "source-map-support": "^0.4.15",
-    "typescript": "^2.3.2",
-    "watchy": "^0.6.7"
+    "mocha": "^4.0.1",
+    "source-map-support": "^0.5.0",
+    "typescript": "^2.6.1",
+    "watchy": "^0.7.0"
   },
   "dependencies": {
-    "@types/compression": "^0.0.33",
+    "@types/compression": "0.0.34",
     "@types/express": "^4.0.35",
     "@types/http-errors": "^1.6.1",
-    "@types/node": "^7.0.18",
+    "@types/node": "^8.0.47",
     "@types/send": "^0.14.2",
     "@types/statuses": "^1.3.0",
     "@types/valid-url": "^1.0.2",
-    "ansi-escape-sequences": "^3.0.0",
+    "ansi-escape-sequences": "^4.0.0",
     "browser-capabilities": "^0.2.1",
     "command-line-args": "^4.0.4",
     "command-line-usage": "^4.0.0",
@@ -44,8 +44,8 @@
     "express": "^4.15.2",
     "http-errors": "^1.6.2",
     "rendertron-middleware": "^0.1.1",
-    "send": "^0.15.2",
     "statuses": "^1.4.0",
+    "send": "^0.16.1",
     "valid-url": "^1.0.9"
   }
 }
