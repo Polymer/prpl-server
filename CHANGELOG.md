@@ -1,7 +1,7 @@
 # Change Log
 
 ## [Unreleased]
-- Add `error` option to be able to serve custom error pages, like a 404 Not Found error page.
+- Add `forwardErrors` option to pass 404s and other HTTP errors down to the next Express error-handling middleware.
 
 ## [0.11.0] 2017-10-23
 - Add `unregisterMissingServiceWorkers` option (default true) which serves a tiny self-unregistering service worker for would-be 404 service worker requests, to prevent clients from getting stuck with invalid service workers indefinitely.
