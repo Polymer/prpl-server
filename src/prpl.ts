@@ -202,8 +202,6 @@ function writePlainTextError(
     response: http.ServerResponse, error: httpErrors.HttpError) {
   response.statusCode = error.status;
   response.setHeader('Content-Type', 'text/plain');
-  response.setHeader(
-      'Content-Length', Buffer.byteLength(error.message).toString());
   response.end(error.message);
 }
 
