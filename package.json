@@ -15,6 +15,8 @@
     "build": "rm -Rf lib/ && tsc",
     "build:watch": "tsc --watch",
     "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run test",
     "test": "npm run build && mocha",
     "test:watch": "watchy -w src -- npm run test"
   },
