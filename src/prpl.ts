@@ -13,27 +13,32 @@
  */
 
 import * as capabilities from 'browser-capabilities';
+import * as express from 'express';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as httpErrors from 'http-errors';
 import * as path from 'path';
 import * as send from 'send';
+import * as statuses from 'statuses';
 import * as url from 'url';
 
 import * as push from './push';
 
 export interface Config {
   // The Cache-Control header to send for all requests except the entrypoint.
+  //
   // Defaults to `max-age=60`.
   cacheControl?: string;
 
-  // A custom error-handling logic function.
+  // If `true`, when a 404 or other HTTP error occurs, the Express `next`
+  // function will be called with the error, so that it can be handled by
+  // downstream error handling middleware.
   //
-  // This function could be useful if you want, by example, be able to
-  // render custom errors pages.
-  error?:
-      (request: http.IncomingMessage,
-       response: http.ServerResponse, error: httpErrors.HttpError) => void;
+  // If `false` (or if there was no `next` function because Express is not
+  // being used), a minimal `text/plain` error will be returned.
+  //
+  // Defaults to `false`.
+  forwardErrors?: boolean;
 
   // Serves a tiny self-unregistering service worker for any request path
   // ending with `service-worker.js` that would otherwise have had a 404 Not
@@ -71,17 +76,30 @@ const isServiceWorker = /service-worker.js$/;
  * Return a new HTTP handler to serve a PRPL-style application.
  */
 export function makeHandler(root?: string, config?: Config): (
-    request: http.IncomingMessage, response: http.ServerResponse) => void {
+    request: http.IncomingMessage,
+    response: http.ServerResponse,
+    next?: express.NextFunction) => void {
   const absRoot = path.resolve(root || '.');
   console.info(`Serving files from "${absRoot}".`);
+
   const builds = loadBuilds(absRoot, config);
+
   const cacheControl = (config && config.cacheControl) || 'max-age=60';
   const unregisterMissingServiceWorkers =
       (config && config.unregisterMissingServiceWorkers != undefined) ?
       config.unregisterMissingServiceWorkers :
       true;
+  const forwardErrors = config && config.forwardErrors;
 
-  return function prplHandler(request, response) {
+  return function prplHandler(request, response, next) {
+    const handleError = (err: httpErrors.HttpError) => {
+      if (forwardErrors && next) {
+        next(err);
+      } else {
+        writePlainTextError(response, err);
+      }
+    };
+
     const urlPath = url.parse(request.url || '/').pathname || '/';
 
     // Let's be extra careful about directory traversal attacks, even though
@@ -93,12 +111,7 @@ export function makeHandler(root?: string, config?: Config): (
     // is a prefix of "/foo-secrets".
     const absFilepath = path.normalize(path.join(absRoot, urlPath));
     if (!absFilepath.startsWith(addTrailingPathSep(absRoot))) {
-      if (config && config.error) {
-        config.error(request, response, httpErrors(403));
-      } else {
-        response.writeHead(403);
-        response.end('Forbidden');
-      }
+      handleError(httpErrors(403, 'Forbidden'));
       return;
     }
 
@@ -120,12 +133,7 @@ export function makeHandler(root?: string, config?: Config): (
     // that we only return this error for the entrypoint; we always serve fully
     // qualified static resources.
     if (!build && serveEntrypoint) {
-      if (config && config.error) {
-        config.error(request, response, httpErrors(500));
-      } else {
-        response.writeHead(500);
-        response.end('This browser is not supported.');
-      }
+      handleError(httpErrors(500, 'This browser is not supported.'));
       return;
     }
 
@@ -173,17 +181,30 @@ self.addEventListener('activate', () => self.registration.unregister());`);
       // We handle the caching header ourselves.
       cacheControl: false,
     };
-
-    let stream = send(request, fileToSend, sendOpts);
-
-    // Set a custom error-handling function
-    if (config && config.error) {
-      const errorFunction = (error:  httpErrors.HttpError) => config.error!(request, response, error)
-      stream = stream.on('error', errorFunction);
-    }
-
-    stream.pipe(response);
+    send(request, fileToSend, sendOpts)
+        .on('error',
+            (err: httpErrors.HttpError) => {
+              // `send` puts a lot of detail in the error message, like the
+              // absolute system path of the missing file for a 404. We don't
+              // want that to leak out, so let's use a generic message instead.
+              err.message = statuses[err.status] || String(err.status);
+              handleError(err);
+            })
+        .pipe(response);
   };
+}
+
+
+/**
+ * Write a plain text HTTP error response.
+ */
+function writePlainTextError(
+    response: http.ServerResponse, error: httpErrors.HttpError) {
+  response.statusCode = error.status;
+  response.setHeader('Content-Type', 'text/plain');
+  response.setHeader(
+      'Content-Length', Buffer.byteLength(error.message).toString());
+  response.end(error.message);
 }
 
 function addTrailingPathSep(p: string): string {

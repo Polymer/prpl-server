@@ -14,6 +14,7 @@
 
 import * as capabilities from 'browser-capabilities';
 import {assert} from 'chai';
+import * as express from 'express';
 import * as http from 'http';
 import * as httpErrors from 'http-errors';
 import * as path from 'path';
@@ -295,59 +296,56 @@ suite('prpl server', function() {
     });
   });
 
-  suite('configured with an error function', () => {
-    suiteSetup(async () => {
-      await startServer(path.join('src', 'test', 'static'), {
+  suite('configured with express error forwarding', () => {
+    suiteSetup((done) => {
+      const app = express();
+
+      app.use(prpl.makeHandler(path.join('src', 'test', 'static'), {
+        forwardErrors: true,
         builds: [
           {
             name: 'es2015',
             browserCapabilities: ['es2015' as capabilities.BrowserCapability],
           },
-        ],
-        error: (req: http.IncomingMessage, res: http.ServerResponse, err: httpErrors.HttpError) => {
-              res.statusCode = err.status || 500
-              const customErrorPages = [403, 404, 500];
-              const hasCustomErrorPage =
-                  customErrorPages.includes(res.statusCode)
+        ]
+      }));
 
-              if (hasCustomErrorPage) {
-                res.end(`Custom ${res.statusCode} error page for ${req.url}`);
-              }
-              else {
-                res.end(err.message)
-              }
-            }
+      app.use(
+          (error: httpErrors.HttpError,
+           _request: any,
+           response: any,
+           _next: express.NextFunction) => {
+            response.statusCode = error.status;
+            response.end(`custom ${error.status}: ${error.message}`);
+          });
+
+      server = app.listen(/* random */ 0, '127.0.0.1', () => {
+        host = server.address().address;
+        port = server.address().port;
+        done();
       });
     });
 
-    test(
-        'should render a custom 403 error page for directory traversal attack',
-        async () => {
-          const status = 403;
-          const url = '/../secrets';
-          const {code, data} = await get(url);
-          assert.equal(code, status);
-          assert.equal(data, `Custom ${status} error page for ${url}`);
-        });
+    suiteTeardown((done) => {
+      server.close(done);
+    });
 
-    test(
-        'should return a custom 404 error page for a Not Found file',
-        async () => {
-          const status = 404;
-          const url = '/fragment/error.html';
-          const {code, data} = await get(url);
-          assert.equal(code, status);
-          assert.include(data, `Custom ${status} error page for ${url}`);
-        });
+    test('forwards error for 404 not found', async () => {
+      const {code, data} = await get('/fragment/error.html');
+      assert.equal(code, 404);
+      assert.equal(data, 'custom 404: Not Found');
+    });
 
-    test(
-        'should render a custom 500 error page to unsupported browsers',
-        async () => {
-          const status = 500;
-          const url = '/';
-          const {code, data} = await get(url);
-          assert.equal(code, status);
-          assert.equal(data, `Custom ${status} error page for ${url}`);
-        });
+    test('forwards error for directory traversal 403', async () => {
+      const {code, data} = await get('/../secrets');
+      assert.equal(code, 403);
+      assert.equal(data, 'custom 403: Forbidden');
+    });
+
+    test('forwards error for unsupported browser 500', async () => {
+      const {code, data} = await get('/');
+      assert.equal(code, 500);
+      assert.equal(data, 'custom 500: This browser is not supported.');
+    });
   });
 });
