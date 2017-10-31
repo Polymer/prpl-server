@@ -12,7 +12,6 @@
  * http://polymer.github.io/PATENTS.txt
  */
 
-import * as capabilities from 'browser-capabilities';
 import {assert} from 'chai';
 import * as express from 'express';
 import * as http from 'http';
@@ -52,22 +51,22 @@ suite('prpl server', function() {
   }
 
   type GetResponse = {
-    code: number|undefined; data: string; headers: {[key: string]: string};
-  }
+    code: number|undefined; data: string; headers: http.IncomingHttpHeaders;
+  };
 
-  function get(path: string, ua?: string, headers?: {[key: string]: string}):
+  function get(path: string, ua?: string, headers?: http.OutgoingHttpHeaders):
       Promise<GetResponse> {
-        return new Promise((resolve) => {
-          const getHeaders = Object.assign({'user-agent': ua || ''}, headers);
-          http.get({host, port, path, headers: getHeaders}, (response) => {
-            const code = response.statusCode;
-            const headers = response.headers;
-            let data = '';
-            response.on('data', (chunk) => data += chunk);
-            response.on('end', () => resolve({code, data, headers}));
-          });
-        });
-      }
+    return new Promise((resolve) => {
+      const getHeaders = Object.assign({'user-agent': ua || ''}, headers);
+      http.get({host, port, path, headers: getHeaders}, (response) => {
+        const code = response.statusCode;
+        const headers = response.headers;
+        let data = '';
+        response.on('data', (chunk) => data += chunk);
+        response.on('end', () => resolve({code, data, headers}));
+      });
+    });
+  }
 
   function checkPlainTextError(
       expectCode: number, expectData: string, res: GetResponse) {
@@ -86,7 +85,7 @@ suite('prpl server', function() {
           },
           {
             name: 'es2015',
-            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+            browserCapabilities: ['es2015'],
           },
         ],
       });
@@ -216,7 +215,7 @@ suite('prpl server', function() {
       test('respects etag request header', async () => {
         const {headers} = await get('/es2015/fragment.html', chrome);
         const {code, data} = await get('/es2015/fragment.html', chrome, {
-          'If-None-Match': headers['etag'],
+          'If-None-Match': headers['etag'] as string,
         });
         assert.equal(code, 304);
         assert.equal(data, '');
@@ -230,7 +229,7 @@ suite('prpl server', function() {
         builds: [
           {
             name: 'es2015',
-            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+            browserCapabilities: ['es2015'],
           },
         ],
       });
@@ -252,7 +251,7 @@ suite('prpl server', function() {
         builds: [
           {
             name: 'es2015',
-            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+            browserCapabilities: ['es2015'],
           },
         ],
         unregisterMissingServiceWorkers: false,
@@ -306,7 +305,7 @@ suite('prpl server', function() {
         builds: [
           {
             name: 'es2015',
-            browserCapabilities: ['es2015' as capabilities.BrowserCapability],
+            browserCapabilities: ['es2015'],
           },
         ]
       }));

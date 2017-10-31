@@ -124,8 +124,8 @@ export function makeHandler(root?: string, config?: Config): (
         (!hasFileExtension.test(urlPath) && !fs.existsSync(absFilepath));
 
     // Find the highest ranked build suitable for this user agent.
-    const clientCapabilities =
-        capabilities.browserCapabilities(request.headers['user-agent']);
+    const clientCapabilities = capabilities.browserCapabilities(
+        request.headers['user-agent'] as string);
     const build = builds.find((b) => b.canServe(clientCapabilities));
 
     // We warned about this at startup. You should probably provide a fallback
