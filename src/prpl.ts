@@ -91,7 +91,7 @@ export function makeHandler(root?: string, config?: Config): (
       true;
   const forwardErrors = config && config.forwardErrors;
 
-  return function prplHandler(request, response, next) {
+  return async function prplHandler(request, response, next) {
     const handleError = (err: httpErrors.HttpError) => {
       if (forwardErrors && next) {
         next(err);
@@ -104,7 +104,7 @@ export function makeHandler(root?: string, config?: Config): (
 
     // Let's be extra careful about directory traversal attacks, even though
     // the `send` library should already ensure we don't serve any file outside
-    // our root. This should also prevent the `fs.existsSync` check we do next
+    // our root. This should also prevent the file existence check we do next
     // from leaking any file existence information (whether you got the
     // entrypoint or a 403 from `send` might tell you if a file outside our
     // root exists). Add the trailing path separator because otherwise "/foo"
@@ -121,7 +121,7 @@ export function makeHandler(root?: string, config?: Config): (
     // likely to be not-found static resources rather than application
     // routes.
     const serveEntrypoint = urlPath === '/' ||
-        (!hasFileExtension.test(urlPath) && !fs.existsSync(absFilepath));
+        (!hasFileExtension.test(urlPath) && !(await fileExists(absFilepath)));
 
     // Find the highest ranked build suitable for this user agent.
     const clientCapabilities = capabilities.browserCapabilities(
@@ -147,7 +147,7 @@ export function makeHandler(root?: string, config?: Config): (
 
       // Automatically unregister service workers that no longer exist to
       // prevent clients getting stuck with old service workers indefinitely.
-      if (unregisterMissingServiceWorkers && !fs.existsSync(absFilepath)) {
+      if (unregisterMissingServiceWorkers && !(await fileExists(absFilepath))) {
         response.setHeader('Content-Type', 'application/javascript');
         response.writeHead(200);
         response.end(
@@ -194,6 +194,12 @@ self.addEventListener('activate', () => self.registration.unregister());`);
   };
 }
 
+/**
+ * Return a promise for the existence of a file.
+ */
+function fileExists(filepath: string): Promise<boolean> {
+  return new Promise((resolve) => fs.access(filepath, (err) => resolve(!err)));
+}
 
 /**
  * Write a plain text HTTP error response.
