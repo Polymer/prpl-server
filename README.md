@@ -24,7 +24,7 @@ $ npm install --save prpl-server
 prpl = require('prpl-server');
 express = require('express');
 
-const app = express()
+const app = express();
 
 app.get('/api/launch', (req, res, next) => res.send('boom'));
 
