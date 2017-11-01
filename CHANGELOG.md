@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+
+## [1.0.0] 2017-10-30
 - Add `forwardErrors` option to pass 404s and other HTTP errors down to the next Express error-handling middleware.
 - Recommend `npm` instead of `yarn` and switch to `npm` lock file.
 - Check file existence asynchronously so the event loop is not blocked.
