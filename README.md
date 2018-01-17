@@ -6,6 +6,28 @@
 
 An HTTP server for Node designed to serve [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
 
+## Contents
+- [Usage](#usage)
+  - [As a binary](#as-a-binary)
+  - [As a library](#as-a-library)
+- [Differential Serving](#differential-serving)
+  - [Builds](#builds)
+  - [Capabilities](#capabilities)
+- [Entrypoint](#entrypoint)
+- [Base paths](#base-paths)
+- [HTTP/2 Server Push](#http-2-server-push)
+  - [Push manifest](#push-manifest)
+  - [Link preload headers](#link-preload-headers)
+  - [Testing push locally](#testing-push-locally)
+- [Service Workers](#service-workers)
+  - [Scope header](#scope-header)
+  - [404 handling](#404-handling)
+- [HTTPS](#https)
+- [Caching](#caching)
+- [HTTP Errors](#http-errors)
+- [Rendering for Bots](#rendering-for-bots)
+- [Google App Engine Quickstart](#google-app-engine-quickstart)
+
 ## Usage
 
 ### As a binary
