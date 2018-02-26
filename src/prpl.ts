@@ -13,13 +13,13 @@
  */
 
 import * as capabilities from 'browser-capabilities';
-import * as express from 'express';
 import * as fs from 'fs';
 import * as http from 'http';
 import * as httpErrors from 'http-errors';
+import * as koa from 'koa';
+import * as send from 'koa-send';
 import * as path from 'path';
-import * as send from 'send';
-import * as statuses from 'statuses';
+// import * as statuses from 'statuses';
 import * as url from 'url';
 
 import * as push from './push';
@@ -76,9 +76,7 @@ const isServiceWorker = /service-worker.js$/;
  * Return a new HTTP handler to serve a PRPL-style application.
  */
 export function makeHandler(root?: string, config?: Config): (
-    request: http.IncomingMessage,
-    response: http.ServerResponse,
-    next?: express.NextFunction) => void {
+    ctx: koa.Context, next: () => Promise<any>) => void {
   const absRoot = path.resolve(root || '.');
   console.info(`Serving files from "${absRoot}".`);
 
@@ -91,16 +89,16 @@ export function makeHandler(root?: string, config?: Config): (
       true;
   const forwardErrors = config && config.forwardErrors;
 
-  return async function prplHandler(request, response, next) {
+  return async function prplHandler(ctx, next) {
     const handleError = (err: httpErrors.HttpError) => {
       if (forwardErrors && next) {
-        next(err);
+        // next(err);
       } else {
-        writePlainTextError(response, err);
+        writePlainTextError(ctx.res, err);
       }
     };
 
-    const urlPath = url.parse(request.url || '/').pathname || '/';
+    const urlPath = url.parse(ctx.url || '/').pathname || '/';
 
     // Let's be extra careful about directory traversal attacks, even though
     // the `send` library should already ensure we don't serve any file outside
@@ -125,7 +123,7 @@ export function makeHandler(root?: string, config?: Config): (
 
     // Find the highest ranked build suitable for this user agent.
     const clientCapabilities = capabilities.browserCapabilities(
-        request.headers['user-agent'] as string);
+        ctx.req.headers['user-agent'] as string);
     const build = builds.find((b) => b.canServe(clientCapabilities));
 
     // We warned about this at startup. You should probably provide a fallback
@@ -143,15 +141,14 @@ export function makeHandler(root?: string, config?: Config): (
       // A service worker may only register with a scope above its own path if
       // permitted by this header.
       // https://www.w3.org/TR/service-workers-1/#service-worker-allowed
-      response.setHeader('Service-Worker-Allowed', '/');
+      ctx.req.headers['Service-Worker-Allowed'] = '/';
 
       // Automatically unregister service workers that no longer exist to
       // prevent clients getting stuck with old service workers indefinitely.
       if (unregisterMissingServiceWorkers && !(await fileExists(absFilepath))) {
-        response.setHeader('Content-Type', 'application/javascript');
-        response.writeHead(200);
-        response.end(
-            `self.addEventListener('install', () => self.skipWaiting());
+        ctx.res.setHeader('Content-Type', 'application/javascript');
+        ctx.res.writeHead(200);
+        ctx.res.end(`self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', () => self.registration.unregister());`);
         return;
       }
@@ -159,8 +156,8 @@ self.addEventListener('activate', () => self.registration.unregister());`);
 
     // Don't set the Cache-Control header if it's already set. This way another
     // middleware can control caching, and we won't touch it.
-    if (!response.getHeader('Cache-Control')) {
-      response.setHeader(
+    if (!ctx.res.getHeader('Cache-Control')) {
+      ctx.res.setHeader(
           'Cache-Control', serveEntrypoint ? 'max-age=0' : cacheControl);
     }
 
@@ -173,7 +170,7 @@ self.addEventListener('activate', () => self.registration.unregister());`);
         // terms of both.
         linkHeaders.push(...build.pushManifest.linkHeaders(fileToSend));
       }
-      response.setHeader('Link', linkHeaders);
+      ctx.res.setHeader('Link', linkHeaders);
     }
 
     const sendOpts = {
@@ -181,7 +178,11 @@ self.addEventListener('activate', () => self.registration.unregister());`);
       // We handle the caching header ourselves.
       cacheControl: false,
     };
-    send(request, fileToSend, sendOpts)
+
+    await send(ctx, fileToSend, sendOpts);
+
+    /**
+    send(ctx.req, fileToSend, sendOpts)
         .on('error',
             (err: httpErrors.HttpError) => {
               // `send` puts a lot of detail in the error message, like the
@@ -190,7 +191,8 @@ self.addEventListener('activate', () => self.registration.unregister());`);
               err.message = statuses[err.status] || String(err.status);
               handleError(err);
             })
-        .pipe(response);
+        .pipe(ctx.res);
+     */
   };
 }
 

@@ -1,6 +1,7 @@
 # Change Log
 
 ## [Unreleased]
+- [BREAKING] Use HTTP/2 and Koa.
 
 ## [1.0.0] 2017-10-31
 - Add `forwardErrors` option to pass 404s and other HTTP errors down to the next Express error-handling middleware.
