@@ -117,7 +117,8 @@ For most documents in your application, the solution is to use relative URLs to 
 
 The solution we recommend is to place a [`<base>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base) tag in your entrypoint to anchor its relative URLs to the correct build subdirectory, regardless of the URL the entrypoint was served from. You may then use relative URLs to refer to build-specific resources from your entrypoint, as though you were in your build subdirectory. Put `<base href="/">` in your source entrypoint, so that URLs resolve when serving your source directly during development. In your build pipeline, update each entrypoint's base tag to match its build subdirectory (e.g. `<base href="/modern/">`).
 
-If you are using polymer-cli, set `{"autoBasePath": true}` in your `polymer.json` to perform this base tag update automatically.
+If you are using polymer-cli, set `{"basePath": true}` in your `polymer.json` to perform this base tag update automatically. 
+You can also assign a string to `basePath`
 
 Note that `<base>` tags only affect relative URLs, so to refer to resources outside of the build from your entrypoint, use absolute URLs as you normally would.
 
