@@ -85,7 +85,7 @@ export class PushManifest {
    *
    * See https://w3c.github.io/preload/#server-push-http-2.
    */
-  linkHeaders(path: string): string[] {
+  linkHeaders(path: string, nopush: boolean = false): string[] {
     const headers = [];
     const normalizedPattern = addLeadingSlash(path);
     for (const [pattern, resources] of this.mapping) {
@@ -96,6 +96,9 @@ export class PushManifest {
         let header = `<${resource}>; rel=preload`;
         if (type) {
           header += `; as=${type}`;
+        }
+        if (nopush) {
+          header += `; nopush`;
         }
         headers.push(header);
       }

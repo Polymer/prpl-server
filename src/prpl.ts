@@ -165,13 +165,17 @@ self.addEventListener('activate', () => self.registration.unregister());`);
     }
 
     if (build && build.pushManifest) {
-      const linkHeaders = build.pushManifest.linkHeaders(urlPath);
+      // Set nopush attribute if the client doesn't support push. This will still
+      // set preload headers, but it provides a signal to the server to not use
+      // server push.
+      const nopush = !clientCapabilities.has('push');
+      const linkHeaders = build.pushManifest.linkHeaders(urlPath, nopush);
       if (urlPath !== fileToSend) {
         // Also check the filename against the push manifest. In the case of
         // the entrypoint, these will be different (e.g. "/my/app/route" vs
         // "/es2015/index.html"), and we want to support configuring pushes in
         // terms of both.
-        linkHeaders.push(...build.pushManifest.linkHeaders(fileToSend));
+        linkHeaders.push(...build.pushManifest.linkHeaders(fileToSend, nopush));
       }
       response.setHeader('Link', linkHeaders);
     }
