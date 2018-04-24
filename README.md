@@ -89,14 +89,14 @@ The `browserCapabilities` field defines the browser features required for that b
 
 You should always include a fallback build with no capability requirements. If you don't, prpl-server will warn at startup, and will return a 500 error on entrypoint requests to browsers for which no build can be served.
 
-The following keywords are supported. See also the [browser-capabilities](https://github.com/Polymer/browser-capabilities) library which prpl-server uses.
+The following keywords are supported. See also the [browser-capabilities](https://github.com/Polymer/tools/tree/master/packages/browser-capabilities) library which prpl-server uses.
 
 | Keyword       | Description
 | :----         | :----
 | es2015        | [ECMAScript 2015 (aka ES6)](https://developers.google.com/web/shows/ttt/series-2/es2015)
 | push          | [HTTP/2 Server Push](https://developers.google.com/web/fundamentals/performance/http2/#server-push)
 | serviceworker | [Service Worker API](https://developers.google.com/web/fundamentals/getting-started/primers/service-workers)
-| modules       | [JavaScript Modules](https://www.chromestatus.com/feature/5365692190687232)
+| modules       | [JavaScript Modules](https://www.chromestatus.com/feature/5365692190687232) (including dynamic `import()` and `import.meta`)
 
 
 ## Entrypoint
@@ -137,6 +137,8 @@ Resources in the push manifest can be specified as absolute or relative paths. A
 ### Link preload headers
 
 prpl-server is designed to be used behind an HTTP/2 reverse proxy, and currently does not generate push responses itself. Instead it sets [preload link](https://w3c.github.io/preload/#server-push-http-2) headers, which are intercepted by cooperating reverse proxy servers and upgraded into push responses. Servers that implement this upgrading behavior include [Apache](https://httpd.apache.org/docs/trunk/mod/mod_http2.html#h2push), [nghttpx](https://github.com/nghttp2/nghttp2#nghttpx---proxy), and [Google App Engine](https://cloud.google.com/appengine/).
+
+If a build with a push manifest is served to a browser that does not support push according to the [browser-capabilities](https://github.com/Polymer/tools/tree/master/packages/browser-capabilities) support matrix, then a `nopush` attribute is added to the generated preload link headers.
 
 ### Testing push locally
 
