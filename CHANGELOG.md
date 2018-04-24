@@ -1,6 +1,10 @@
 # Change Log
 
-## [Unreleased]
+<!-- ## [Unreleased] -->
+
+## [1.1.0] 2018-04-23
+- Update browser-capabilities to pick up the latest user agent information for modules and service workers. Support for dynamic `import()` and `import.meta` are now requirements for the `modules` capability.
+- If a build with a push manifest is served to a browser that does not support push (according to browser-capabilities), then we will still set preload headers, but with the `nopush` attribute set.
 
 ## [1.0.0] 2017-10-31
 - Add `forwardErrors` option to pass 404s and other HTTP errors down to the next Express error-handling middleware.
