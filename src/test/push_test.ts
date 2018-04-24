@@ -130,4 +130,15 @@ suite('PushManifest', function() {
     ];
     assert.deepEqual(manifest.linkHeaders('/subdir/foo/bar'), expect);
   });
+
+  test('nopush attribute setting works', () => {
+    const manifest = new push.PushManifest({
+      '/foo': {
+        '/dep.html': {type: 'document'},
+      },
+    });
+    assert.deepEqual(manifest.linkHeaders('/foo', true), [
+      '</dep.html>; rel=preload; as=document; nopush',
+    ]);
+  });
 });
