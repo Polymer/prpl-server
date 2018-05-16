@@ -19,6 +19,7 @@ suite('PushManifest', function() {
   test('validates types', () => {
     assert.doesNotThrow(() => {
       new push.PushManifest({'/a.html': {'/b.html': {type: 'document'}}});
+      new push.PushManifest({'/a.html': {'/api': {type: 'fetch'}}});
       new push.PushManifest({'/a.js': {'/b.js': {type: 'script'}}});
     });
     assert.throws(() => {
