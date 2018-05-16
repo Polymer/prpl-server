@@ -127,6 +127,7 @@ const requestDestinations = new Set([
   'audio',
   'document',
   'embed',
+  'fetch',
   'font',
   'image',
   'manifest',
