@@ -1,6 +1,7 @@
 # Change Log
 
-<!-- ## [Unreleased] -->
+## [Unreleased]
+- Add `as=fetch` as a valid value for preload headers.
 
 ## [1.1.0] 2018-04-23
 - Update browser-capabilities to pick up the latest user agent information for modules and service workers. Support for dynamic `import()` and `import.meta` are now requirements for the `modules` capability.
