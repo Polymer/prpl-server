@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [1.2.0] 2018-05-22
 - Add `as=fetch` as a valid value for preload headers.
 
 ## [1.1.0] 2018-04-23
