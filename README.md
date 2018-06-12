@@ -227,9 +227,9 @@ Note that you can also use the [Rendertron middleware](https://github.com/Google
 
 ## Google App Engine Quickstart
 
-[Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node](https://cloud.google.com/nodejs/) in its [flexible environment](https://cloud.google.com/appengine/docs/flexible/nodejs/) or [standard environment](https://cloud.google.com/appengine/docs/standard/nodejs/). You can deploy prpl-server to App Engine with a few steps:
+[Google App Engine](https://cloud.google.com/appengine/) is a managed server platform that [supports Node.js](https://cloud.google.com/nodejs/). You can deploy prpl-server to App Engine [standard environment](https://cloud.google.com/appengine/docs/standard/nodejs/) with a few steps:
 
-1. Follow [these instructions](https://cloud.google.com/appengine/docs/flexible/nodejs/quickstart) to set up a Google Cloud project and install the Google Cloud SDK. As instructed, run the `gcloud init` command to authenticate and choose your project ID.
+1. Follow [these instructions](https://cloud.google.com/appengine/docs/standard/nodejs/quickstart) to set up a Google Cloud project and install the Google Cloud SDK. As instructed, run the `gcloud init` command to authenticate and choose your project ID.
 
 2. `cd` to the directory you want to serve (e.g. your app's `build/` directory if you are using polymer-cli).
 
@@ -250,19 +250,10 @@ Note that you can also use the [Rendertron middleware](https://github.com/Google
 }
 ```
 
-6. Create an `app.yaml` file. This tells App Engine which Node environment to use:
-
-### Flexible environment
-
-```yaml
-runtime: nodejs
-env: flex
-```
-
-### Standard environment
+6. Create an `app.yaml` file. This tells App Engine that you want to use Node.js in the App Engine standard environment:
 
 ```yaml
 runtime: nodejs8
 ```
 
-7. Run `gcloud app deploy` to deploy to your App Engine project. `gcloud` will tell you the URL your app is being served from. For next steps, check out the Node on App Engine documentation for [flexible environment](https://cloud.google.com/appengine/docs/flexible/nodejs/) or [standard environment](https://cloud.google.com/appengine/docs/standard/nodejs/).
+7. Run `gcloud app deploy` to deploy to your App Engine project. `gcloud` will tell you the URL your app is being served from. For next steps, check out the Node.js in the App Engine standard environment [documentation](https://cloud.google.com/appengine/docs/standard/nodejs/).
