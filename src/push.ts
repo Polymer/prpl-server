@@ -19,7 +19,13 @@ import * as validUrl from 'valid-url';
  * JSON format for a multi-file push manifest.
  */
 export interface PushManifestData {
-  [pattern: string]: {[resource: string]: {type: string; weight?: number;}}
+  [pattern: string]: {
+    [resource: string]: {
+      type: string;
+      crossorigin?: string;
+      weight?: number;
+    }
+  }
 }
 
 /**
@@ -27,7 +33,8 @@ export interface PushManifestData {
  * should be pre-emptively pushed to the client via HTTP/2 server push.
  */
 export class PushManifest {
-  private mapping = new Array<[RegExp, Map<string, {type: string}>]>();
+  private mapping =
+    new Array<[RegExp, Map<string, {type: string; crossorigin: string|null}>]>();
 
   /**
    * Create a new `PushManifest` from a JSON object which is expected to match
@@ -55,11 +62,12 @@ export class PushManifest {
       const resources = new Map();
       for (const resource of Object.keys(manifest[pattern])) {
         validatePath(resource);
-        const t = manifest[pattern][resource].type || '';
-        if (!requestDestinations.has(t)) {
-          throw new Error(`invalid type: ${t}`);
+        const type = manifest[pattern][resource].type || '';
+        const crossorigin = manifest[pattern][resource].crossorigin || null;
+        if (!requestDestinations.has(type)) {
+          throw new Error(`invalid type: ${type}`);
         }
-        resources.set(normalizePath(resource, basePath), {type: t});
+        resources.set(normalizePath(resource, basePath), {type, crossorigin});
       }
       if (resources.size) {
         let normalizedPattern;
@@ -92,10 +100,13 @@ export class PushManifest {
       if (!resources || !pattern.test(normalizedPattern)) {
         continue;
       }
-      for (const [resource, {type}] of resources.entries()) {
+      for (const [resource, {type, crossorigin}] of resources.entries()) {
         let header = `<${resource}>; rel=preload`;
         if (type) {
           header += `; as=${type}`;
+        }
+        if (crossorigin) {
+          header += `; crossorigin=${crossorigin}`;
         }
         if (nopush) {
           header += `; nopush`;
