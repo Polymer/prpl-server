@@ -142,4 +142,21 @@ suite('PushManifest', function() {
       '</dep.html>; rel=preload; as=document; nopush',
     ]);
   });
+
+  test('crossorigin setting works', () => {
+    const manifest = new push.PushManifest({
+      '/foo': {
+        '/a.html': {type: 'document'},
+        '/b.html': {type: 'document', crossorigin: ''},
+        '/c.html': {type: 'document', crossorigin: 'anonymous'},
+        '/d.html': {type: 'document', crossorigin: 'use-credentials'},
+      },
+    });
+    assert.deepEqual(manifest.linkHeaders('/foo'), [
+      '</a.html>; rel=preload; as=document',
+      '</b.html>; rel=preload; as=document',
+      '</c.html>; rel=preload; as=document; crossorigin=anonymous',
+      '</d.html>; rel=preload; as=document; crossorigin=use-credentials',
+    ]);
+  });
 });
