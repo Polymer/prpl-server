@@ -5,9 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
-- Support crossorigin setting in push-manifest.
+<!-- ## Unreleased -->
 <!-- Add new, unreleased changes here. -->
+
+## [1.3.0] 2018-12-06
+- Support crossorigin setting in push-manifest.
 
 ## [1.2.0] 2018-05-22
 - Add `as=fetch` as a valid value for preload headers.
