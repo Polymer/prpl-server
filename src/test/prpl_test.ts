@@ -183,6 +183,17 @@ suite('prpl server', function() {
         assert.equal(headers['service-worker-allowed'], '/');
       });
 
+      test('sets zero cache header on SW', async () => {
+        const {headers} = await get('/es2015/service-worker.js', chrome);
+        assert.equal(headers['cache-control'], 'max-age=0');
+      });
+
+      test('doesn\'t set cache header on SW if already set', async () => {
+        // See above explanation of `custom-cache` magic.
+        const {headers} = await get('/es2015/service-worker.js?custom-cache', chrome);
+        assert.equal(headers['cache-control'], 'custom-cache');
+      });
+
       test('automatically unregister missing service workers', async () => {
         const {code, data, headers} = await get('/service-worker.js', chrome);
         assert.equal(code, 200);

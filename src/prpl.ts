@@ -145,6 +145,11 @@ export function makeHandler(root?: string, config?: Config): (
       // https://www.w3.org/TR/service-workers-1/#service-worker-allowed
       response.setHeader('Service-Worker-Allowed', '/');
 
+      // Don't cache SW (unless cache header is otherwise set).
+      if (!response.getHeader('Cache-Control')) {
+        response.setHeader('Cache-Control', 'max-age=0');
+      }
+
       // Automatically unregister service workers that no longer exist to
       // prevent clients getting stuck with old service workers indefinitely.
       if (unregisterMissingServiceWorkers && !(await fileExists(absFilepath))) {

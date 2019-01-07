@@ -181,7 +181,7 @@ You should always use `--https-redirect` in production, unless your reverse prox
 
 ## Caching
 
-By default, prpl-server sets the [`Cache-Control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) header to `max-age=60` (1 minute), except for the entrypoint which gets `max-age=0`. [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) headers are also sent, so resources that have not changed on the server can be re-validated efficiently.
+By default, prpl-server sets the [`Cache-Control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) header to `max-age=60` (1 minute), except for the entrypoint and service worker which gets `max-age=0`. [`ETag`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag) headers are also sent, so resources that have not changed on the server can be re-validated efficiently.
 
 To change this default for non-entrypoint resources, set the `cacheControl` property in your configuration file, or the `--cache-control` command-line flag, to the desired `Cache-Control` header value. You may want to set `--cache-control=no-cache` during development.
 
