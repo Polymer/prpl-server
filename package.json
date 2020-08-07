@@ -31,7 +31,6 @@
     "rendertron-middleware": "^0.1.5",
     "send": "^0.17.1",
     "statuses": "^1.5.0",
-    "tsc-then": "^1.1.0",
     "valid-url": "^1.0.9"
   },
   "devDependencies": {
@@ -48,6 +47,7 @@
     "clang-format": "^1.4.0",
     "mocha": "^5.2.0",
     "source-map-support": "^0.5.19",
+    "tsc-then": "^1.1.0",
     "typescript": "^3.9.7"
   }
 }
