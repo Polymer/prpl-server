@@ -1,3 +1,0 @@
---ui tdd
---require source-map-support/register
-lib/test/**/*_test.js
