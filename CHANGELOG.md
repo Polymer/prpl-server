@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- ## Unreleased -->
 <!-- Add new, unreleased changes here. -->
 
+## [1.4.1] 2020-08-07
+- Clean up unnecessary dependencies.
+
 ## [1.4.0] 2019-01-07
 - Don't cache response for SW.
 
