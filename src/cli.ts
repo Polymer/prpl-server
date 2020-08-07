@@ -16,6 +16,7 @@ import * as compression from 'compression';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
+import type { AddressInfo } from 'net';
 
 import * as prpl from './prpl';
 
@@ -166,7 +167,7 @@ export function run(argv: string[]) {
   app.use(prpl.makeHandler(args.root, config));
 
   const server = app.listen(args.port, args.host, () => {
-    const addr = server.address();
+    const addr = server.address() as AddressInfo;
     let urlHost = addr.address;
     if (addr.family === 'IPv6') {
       urlHost = '[' + urlHost + ']';

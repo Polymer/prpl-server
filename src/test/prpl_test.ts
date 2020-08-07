@@ -17,6 +17,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as httpErrors from 'http-errors';
 import * as path from 'path';
+import type { AddressInfo } from 'net';
 
 import * as prpl from '../prpl';
 
@@ -43,8 +44,9 @@ suite('prpl server', function() {
         });
     return new Promise<void>((resolve) => {
       server.listen(/* random */ 0, '127.0.0.1', () => {
-        host = server.address().address;
-        port = server.address().port;
+        const addr = server.address() as AddressInfo;
+        host = addr.address;
+        port = addr.port;
         resolve();
       });
     });
@@ -332,8 +334,9 @@ suite('prpl server', function() {
           });
 
       server = app.listen(/* random */ 0, '127.0.0.1', () => {
-        host = server.address().address;
-        port = server.address().port;
+        const addr = server.address() as AddressInfo;
+        host = addr.address;
+        port = addr.port;
         done();
       });
     });
