@@ -7,7 +7,7 @@
   "types": "lib/prpl.d.ts",
   "bin": "bin/prpl-server",
   "engines": {
-    "node": ">=6.0"
+    "node": ">=10.0"
   },
   "author": "The Polymer Project Authors",
   "license": "BSD-3-Clause",
