@@ -2,7 +2,7 @@
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/3bfbf7fgdifebv7o/branch/master?svg=true)](https://ci.appveyor.com/project/aomarks/prpl-server-node/branch/master)
 [![NPM version](http://img.shields.io/npm/v/prpl-server.svg)](https://www.npmjs.com/package/prpl-server)
 
-# prpl-server-node
+# prpl-server
 
 An HTTP server for Node designed to serve [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
 
