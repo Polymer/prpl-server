@@ -20,6 +20,10 @@
     "test": "npm run build && mocha lib/test/**/*_test.js",
     "test:watch": "tsc-then -- npm run test"
   },
+  "files": [
+    "bin/**/*",
+    "lib/**/*"
+  ],
   "dependencies": {
     "ansi-escape-sequences": "^5.1.2",
     "browser-capabilities": "^1.1.4",
