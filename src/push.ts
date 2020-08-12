@@ -20,11 +20,7 @@ import * as validUrl from 'valid-url';
  */
 export interface PushManifestData {
   [pattern: string]: {
-    [resource: string]: {
-      type: string;
-      crossorigin?: string;
-      weight?: number;
-    }
+    [resource: string]: {type: string; crossorigin?: string; weight?: number;}
   }
 }
 
@@ -33,8 +29,14 @@ export interface PushManifestData {
  * should be pre-emptively pushed to the client via HTTP/2 server push.
  */
 export class PushManifest {
-  private mapping =
-    new Array<[RegExp, Map<string, {type: string; crossorigin: string|null}>]>();
+  private mapping = new Array<[
+    RegExp,
+    Map<string,
+        {
+          type: string;
+          crossorigin: string|null
+        }>
+  ]>();
 
   /**
    * Create a new `PushManifest` from a JSON object which is expected to match
