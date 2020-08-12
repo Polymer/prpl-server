@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- ## Unreleased -->
 <!-- Add new, unreleased changes here. -->
 
+## [1.4.2] 2020-08-12
+- Update dependencies.
+- Clean up unnecessary NPM package files.
+
 ## [1.4.1] 2020-08-07
 - Clean up unnecessary dependencies.
 
