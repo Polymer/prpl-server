@@ -170,9 +170,9 @@ self.addEventListener('activate', () => self.registration.unregister());`);
     }
 
     if (build && build.pushManifest) {
-      // Set nopush attribute if the client doesn't support push. This will still
-      // set preload headers, but it provides a signal to the server to not use
-      // server push.
+      // Set nopush attribute if the client doesn't support push. This will
+      // still set preload headers, but it provides a signal to the server to
+      // not use server push.
       const nopush = !clientCapabilities.has('push');
       const linkHeaders = build.pushManifest.linkHeaders(urlPath, nopush);
       if (urlPath !== fileToSend) {

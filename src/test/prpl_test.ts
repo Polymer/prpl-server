@@ -17,7 +17,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as httpErrors from 'http-errors';
 import * as path from 'path';
-import type { AddressInfo } from 'net';
+import type {AddressInfo} from 'net';
 
 import * as prpl from '../prpl';
 
@@ -192,7 +192,8 @@ suite('prpl server', function() {
 
       test('doesn\'t set cache header on SW if already set', async () => {
         // See above explanation of `custom-cache` magic.
-        const {headers} = await get('/es2015/service-worker.js?custom-cache', chrome);
+        const {headers} =
+            await get('/es2015/service-worker.js?custom-cache', chrome);
         assert.equal(headers['cache-control'], 'custom-cache');
       });
 

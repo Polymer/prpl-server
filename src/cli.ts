@@ -16,7 +16,7 @@ import * as compression from 'compression';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
-import type { AddressInfo } from 'net';
+import type {AddressInfo} from 'net';
 
 import * as prpl from './prpl';
 
