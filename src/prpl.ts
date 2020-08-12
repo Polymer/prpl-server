@@ -196,7 +196,7 @@ self.addEventListener('activate', () => self.registration.unregister());`);
               // `send` puts a lot of detail in the error message, like the
               // absolute system path of the missing file for a 404. We don't
               // want that to leak out, so let's use a generic message instead.
-              err.message = statuses[err.status] || String(err.status);
+              err.message = statuses.message[err.status] || String(err.status);
               handleError(err);
             })
         .pipe(response);
