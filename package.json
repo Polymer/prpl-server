@@ -31,6 +31,7 @@
     "command-line-usage": "^6.1.0",
     "compression": "^1.7.4",
     "express": "^4.17.1",
+    "express-prometheus-middleware": "^1.0.0",
     "http-errors": "^1.8.0",
     "rendertron-middleware": "^0.1.5",
     "send": "^0.17.1",

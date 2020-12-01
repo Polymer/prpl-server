@@ -24,6 +24,7 @@ const commandLineArgs = require('command-line-args') as any;
 const commandLineUsage = require('command-line-usage') as any;
 const ansi = require('ansi-escape-sequences') as any;
 const rendertron = require('rendertron-middleware') as any;
+const prometheus = require('express-prometheus-middleware') as any;
 
 const argDefs = [
   {
@@ -81,6 +82,11 @@ const argDefs = [
         'The Cache-Control header to send for all requests except the ' +
         'entrypoint (default from config file or "max-age=60").',
   },
+  {
+    name: 'monitoring',
+    type: Boolean,
+    description: 'Enables prometheus monitoring'
+  },
 ];
 
 export function run(argv: string[]) {
@@ -135,6 +141,15 @@ export function run(argv: string[]) {
     config.cacheControl = args['cache-control'];
   };
 
+  let monitoringEnabled = false;
+  if (args['monitoring']) {
+    if (!config.monitoring) {
+      console.warn(`WARNING: Monitoring is disabled, no relevant config found`);
+    } else {
+      monitoringEnabled = true;
+    }
+  }
+
   const app = express();
 
   // Trust X-Forwarded-* headers so that when we are behind a reverse proxy,
@@ -142,6 +157,25 @@ export function run(argv: string[]) {
   // the proxy), not of the proxy itself. We need this for HTTPS redirection
   // and bot rendering.
   app.set('trust proxy', true);
+
+  // Monitoring
+  if (monitoringEnabled) {
+    console.info(`Enabling prometheus monitoring`);
+    const { monitoring } = config;
+    let authProvider = (_: any): boolean => { return true };
+    
+    if (monitoring?.basicAuth) {
+      const { username, password } = monitoring?.basicAuth;
+      const token = Buffer.from(`${username}:${password}`).toString('base64');
+      authProvider = req => req.headers.authorization === `Basic ${token}`;
+    }
+
+    app.use(prometheus({
+      metricsPath: monitoring?.scrapeEndpoint,
+      authenticate: authProvider,
+      metricsApp: app
+    }));
+  }
 
   if (args['https-redirect']) {
     console.info(`Redirecting HTTP requests to HTTPS.`);
