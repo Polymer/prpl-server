@@ -1,8 +1,9 @@
 {
-  "name": "prpl-server",
+  "name": "@migroscomtr/prpl-server",
   "version": "1.4.2",
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
-  "repository": "git+https://github.com/Polymer/prpl-server-node.git",
+  "repository": "git@github.com:migroscomtr/prpl-server-node.git",
+
   "main": "lib/prpl.js",
   "types": "lib/prpl.d.ts",
   "bin": "bin/prpl-server",
@@ -16,7 +17,7 @@
     "build:watch": "tsc --watch",
     "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
     "prepack": "npm run build",
-    "prepublishOnly": "npm  test",
+    "prepublishOnly": "npm test && npm version patch",
     "test": "npm run build && mocha lib/test/**/*_test.js",
     "test:watch": "tsc-then -- npm run test"
   },
@@ -54,5 +55,8 @@
     "source-map-support": "^0.5.19",
     "tsc-then": "^1.1.0",
     "typescript": "^3.9.7"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
