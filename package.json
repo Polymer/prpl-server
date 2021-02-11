@@ -17,7 +17,7 @@
     "build:watch": "tsc --watch",
     "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
     "prepack": "npm run build",
-    "prepublishOnly": "npm test && npm version patch",
+    "prepublishOnly": "npm test && npm version patch --no-git-tag-version",
     "test": "npm run build && mocha lib/test/**/*_test.js",
     "test:watch": "tsc-then -- npm run test"
   },
