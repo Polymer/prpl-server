@@ -33,6 +33,7 @@
     "express": "^4.17.1",
     "express-prometheus-middleware": "^1.0.0",
     "http-errors": "^1.8.0",
+    "prom-client": "^12.0.0",
     "rendertron-middleware": "^0.1.5",
     "send": "^0.17.1",
     "statuses": "^2.0.0",
