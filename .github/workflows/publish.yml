@@ -20,6 +20,7 @@ jobs:
           git config --local user.email "heroci@startuphero.es"
           git config --local user.name "heroci"
           npm version patch
+          git push
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

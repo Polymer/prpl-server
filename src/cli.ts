@@ -15,7 +15,6 @@
 import * as compression from 'compression';
 import * as express from 'express';
 import * as fs from 'fs';
-import * as path from 'path';
 import type {AddressInfo} from 'net';
 
 import * as prpl from './prpl';
@@ -124,7 +123,7 @@ export function run(argv: string[]) {
   // If specified explicitly, a missing config file will error. Otherwise, try
   // the default location and only warn when it's missing.
   if (!args.config) {
-    const p = path.join(args.root, 'polymer.json');
+    const p = '../polymer.json';
     if (fs.existsSync(p)) {
       args.config = p;
     } else {
