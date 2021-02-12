@@ -139,15 +139,6 @@ export function run(argv: string[]) {
 
   if (args['cache-control']) {
     config.cacheControl = args['cache-control'];
-  };
-
-  let monitoringEnabled = false;
-  if (args['monitoring']) {
-    if (!config.monitoring) {
-      console.warn(`WARNING: Monitoring is disabled, no relevant config found`);
-    } else {
-      monitoringEnabled = true;
-    }
   }
 
   const app = express();
@@ -159,11 +150,11 @@ export function run(argv: string[]) {
   app.set('trust proxy', true);
 
   // Monitoring
-  if (monitoringEnabled) {
+  if (args['monitoring']) {
     console.info(`Enabling prometheus monitoring`);
     const { monitoring } = config;
     let authProvider = (_: any): boolean => { return true };
-    
+
     if (monitoring?.basicAuth) {
       const { username, password } = monitoring?.basicAuth;
       const token = Buffer.from(`${username}:${password}`).toString('base64');

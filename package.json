@@ -1,6 +1,6 @@
 {
   "name": "@migroscomtr/prpl-server",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
   "repository": "git@github.com:migroscomtr/prpl-server.git",
   "main": "lib/prpl.js",
@@ -15,14 +15,13 @@
     "build": "rm -Rf lib/ && tsc",
     "build:watch": "tsc --watch",
     "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
-    "prepack": "npm run build",
-    "prepublishOnly": "npm test && npm version patch --no-git-tag-version",
-    "test": "npm run build && mocha lib/test/**/*_test.js",
+    "test": "mocha lib/test/**/*_test.js",
     "test:watch": "tsc-then -- npm run test"
   },
   "files": [
     "bin/**/*",
-    "lib/**/*"
+    "lib/**/*",
+    "polymer.json"
   ],
   "dependencies": {
     "ansi-escape-sequences": "^5.1.2",

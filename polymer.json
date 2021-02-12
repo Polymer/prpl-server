@@ -1,0 +1,9 @@
+{
+  "monitoring": {
+    "scrapeEndpoint": "/prometheus",
+    "basicAuth": {
+      "username": "tester",
+      "password": "qaz890*"
+    }
+  }
+}
