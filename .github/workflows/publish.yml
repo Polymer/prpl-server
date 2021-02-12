@@ -15,8 +15,11 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm test
-      - uses: stefanzweifel/git-auto-commit-action@v4
-      - run: npm version patch
+      - name: npm version patch
+        run: |
+          git config --local user.email "heroci@startuphero.es"
+          git config --local user.name "heroci"
+          npm version patch
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
