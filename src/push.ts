@@ -20,7 +20,7 @@ import * as validUrl from 'valid-url';
  */
 export interface PushManifestData {
   [pattern: string]: {
-    [resource: string]: {type: string; crossorigin?: string; weight?: number;}
+    [resource: string]: {type: string; crossorigin?: string; rel?: string; weight?: number;}
   }
 }
 
@@ -34,7 +34,8 @@ export class PushManifest {
     Map<string,
         {
           type: string;
-          crossorigin: string|null
+          crossorigin: string|null;
+          rel: string|null
         }>
   ]>();
 
@@ -66,6 +67,10 @@ export class PushManifest {
         validatePath(resource);
         const type = manifest[pattern][resource].type || '';
         const crossorigin = manifest[pattern][resource].crossorigin || null;
+        const rel = manifest[pattern][resource].rel || 'preload';
+        if (!requestRelation.has(rel)) {
+          throw new Error(`invalid rel: ${rel}`);
+        }
         if (!requestDestinations.has(type)) {
           throw new Error(`invalid type: ${type}`);
         }
@@ -102,8 +107,8 @@ export class PushManifest {
       if (!resources || !pattern.test(normalizedPattern)) {
         continue;
       }
-      for (const [resource, {type, crossorigin}] of resources.entries()) {
-        let header = `<${resource}>; rel=preload`;
+      for (const [resource, {type, crossorigin, rel}] of resources.entries()) {
+        let header = `<${resource}>; rel=${rel}`;
         if (type) {
           header += `; as=${type}`;
         }
@@ -154,4 +159,10 @@ const requestDestinations = new Set([
   'video',
   'worker',
   'xslt'
+]);
+
+// From https://html.spec.whatwg.org/multipage/links.html#linkTypes
+const requestRelation = new Set([
+  'preload',
+  'modulepreload'
 ]);
