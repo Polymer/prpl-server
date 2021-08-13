@@ -98,8 +98,8 @@ export function makeHandler(root?: string, config?: Config): (
   const cacheControl = (config && config.cacheControl) || 'max-age=60';
   const unregisterMissingServiceWorkers =
       (config && config.unregisterMissingServiceWorkers != undefined) ?
-      config.unregisterMissingServiceWorkers :
-      true;
+          config.unregisterMissingServiceWorkers :
+          true;
   const forwardErrors = config && config.forwardErrors;
 
   return async function prplHandler(request, response, next) {
@@ -110,6 +110,19 @@ export function makeHandler(root?: string, config?: Config): (
         writePlainTextError(response, err);
       }
     };
+
+    response.setHeader('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval'; "
+        + "script-src * 'unsafe-inline' 'unsafe-eval'; "
+        + "connect-src * 'unsafe-inline'; "
+        + "font-src * ; "
+        + "img-src * data: blob: 'unsafe-inline'; "
+        + "frame-src sanalmarket: yenism: http://*.youtube.com https://tr.rdrtr.com https://stags.bluekai.com https://*.creativecdn.com https://creativecdn.com https://*.criteo.com https://*.facebook.com https://*.doubleclick.net https://*.api.sociaplus.com https://*.webinstats.com https://sanalmarket.api.useinsider.com https://optimize.google.com https://*.bkmexpress.com.tr https://www.linkadoo.co https://linkadoo.co; "
+        + "style-src * 'unsafe-inline';");
+    response.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    response.setHeader('Strict-Transport-Security', 'max-age=0; includeSubDomains');
+    response.setHeader('X-XSS-Protection', 1);
+    response.setHeader('X-Content-Type-Options', 'nosniff');
+
 
     const urlPath = url.parse(request.url || '/').pathname || '/';
 
@@ -283,7 +296,7 @@ class Build {
   }
 }
 
-function loadBuilds(root: string, config: Config|undefined): Build[] {
+function loadBuilds(root: string, config: Config | undefined): Build[] {
   const builds: Build[] = [];
   const entrypoint = (config ? config.entrypoint : null) || 'index.html';
 

@@ -24,7 +24,7 @@ import * as prpl from '../prpl';
 const chrome = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) ' +
     'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36';
 
-suite('prpl server', function() {
+suite('prpl server', function () {
   let server: http.Server;
   let host: string;
   let port: number;
@@ -53,7 +53,7 @@ suite('prpl server', function() {
   }
 
   type GetResponse = {
-    code: number|undefined; data: string; headers: http.IncomingHttpHeaders;
+    code: number | undefined; data: string; headers: http.IncomingHttpHeaders;
   };
 
   function get(path: string, ua?: string, headers?: http.OutgoingHttpHeaders):
@@ -102,6 +102,21 @@ suite('prpl server', function() {
         const {code, data} = await get('/');
         assert.equal(code, 200);
         assert.include(data, 'fallback entrypoint');
+      });
+
+      test('has security headers', async () => {
+        const {headers} = await get('/');
+        assert(headers['content-security-policy'], "default-src * 'unsafe-inline' 'unsafe-eval'; "
+            + "script-src * 'unsafe-inline' 'unsafe-eval'; "
+            + "connect-src * 'unsafe-inline'; "
+            + "font-src * ; "
+            + "img-src * data: blob: 'unsafe-inline'; "
+            + "frame-src sanalmarket: yenism: http://*.youtube.com https://tr.rdrtr.com https://stags.bluekai.com https://*.creativecdn.com https://creativecdn.com https://*.criteo.com https://*.facebook.com https://*.doubleclick.net https://*.api.sociaplus.com https://*.webinstats.com https://sanalmarket.api.useinsider.com https://optimize.google.com https://*.bkmexpress.com.tr https://www.linkadoo.co https://linkadoo.co; "
+            + "style-src * 'unsafe-inline';");
+        assert(headers["x-frame-options"], "SAMEORIGIN");
+        assert(headers["strict-transport-security"], "max-age=0; includeSubDomains");
+        assert(headers["x-xss-protection"], '1');
+        assert(headers["x-content-type-options"], 'nosniff')
       });
 
       test('serves entrypoint for application route', async () => {
@@ -166,7 +181,7 @@ suite('prpl server', function() {
         assert.equal(
             headers['link'],
             ('</es2015/fragment.html>; rel=preload; as=document, ' +
-             '</es2015/serviceworker.js>; rel=preload; as=script'));
+                '</es2015/serviceworker.js>; rel=preload; as=script'));
       });
 
       test('sets push headers for application route', async () => {
@@ -176,8 +191,8 @@ suite('prpl server', function() {
             // Note these headers are both those defined for the entrypoint by
             // filename, and by application route.
             ('</es2015/foo.html>; rel=preload; as=document, ' +
-             '</es2015/fragment.html>; rel=preload; as=document, ' +
-             '</es2015/serviceworker.js>; rel=preload; as=script'));
+                '</es2015/fragment.html>; rel=preload; as=document, ' +
+                '</es2015/serviceworker.js>; rel=preload; as=script'));
       });
 
       test('sets service-worker-allowed header', async () => {
@@ -326,9 +341,9 @@ suite('prpl server', function() {
 
       app.use(
           (error: httpErrors.HttpError,
-           _request: any,
-           response: any,
-           _next: express.NextFunction) => {
+              _request: any,
+              response: any,
+              _next: express.NextFunction) => {
             response.statusCode = error.status;
             response.setHeader('Content-Type', 'text/plain');
             response.end(`custom ${error.status}: ${error.message}`);
