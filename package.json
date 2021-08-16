@@ -1,6 +1,6 @@
 {
   "name": "@migroscomtr/prpl-server",
-  "version": "1.4.8",
+  "version": "1.4.9",
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
   "repository": "git@github.com:migroscomtr/prpl-server.git",
   "main": "lib/prpl.js",
