@@ -116,7 +116,7 @@ export function makeHandler(root?: string, config?: Config): (
         + "connect-src * 'unsafe-inline'; "
         + "font-src * data:; "
         + "img-src * data: blob: 'unsafe-inline'; "
-        + "frame-src sanalmarket: yenism: http://*.youtube.com https://tr.rdrtr.com https://stags.bluekai.com https://*.creativecdn.com https://creativecdn.com https://*.criteo.com https://*.facebook.com https://*.doubleclick.net https://*.api.sociaplus.com https://*.webinstats.com https://sanalmarket.api.useinsider.com https://optimize.google.com https://*.bkmexpress.com.tr https://www.linkadoo.co https://linkadoo.co; "
+        + "frame-src sanalmarket: yenism: http://*.youtube.com https://tr.rdrtr.com https://stags.bluekai.com https://*.creativecdn.com https://creativecdn.com https://*.criteo.com https://*.facebook.com https://*.doubleclick.net https://*.api.sociaplus.com https://*.webinstats.com https://sanalmarket.api.useinsider.com https://optimize.google.com https://*.bkmexpress.com.tr https://www.linkadoo.co https://linkadoo.co https://channelconnector.smartmessage-connect.com; "
         + "style-src * 'unsafe-inline';");
     response.setHeader('X-Frame-Options', 'SAMEORIGIN');
     response.setHeader('Strict-Transport-Security', 'max-age=0; includeSubDomains');
