@@ -6,6 +6,14 @@
 
 An HTTP server for Node designed to serve [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
 
+> ⚠️IMPORTANT⚠️ `prpl-server` is in maintenance mode, and is no longer recommended. Reports and PRs for critical bugs and security issues will be accepted, but we will no longer accept new feature requests or PRs.
+> 
+> For differential serving, we now recommend a simple two-build configuration using `nomodule` for client-side capability sniffing. See https://jasonformat.com/modern-script-loading/ for more details on this pattern.
+>
+> If you are looking for a modern *development* sever, we recommend [@web/dev-server](https://modern-web.dev/docs/dev-server/overview/).
+> 
+> In addition, note that Chromium is [considering](https://groups.google.com/a/chromium.org/g/blink-dev/c/K3rYLvmQUBY/m/vOWBKZGoAQAJ?pli=1) removing support for Server Push in a future version. Consider using [`<link rel="preload">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Link_types/preload) tags as a simpler alternative with similar performance benefits.
+
 ## Contents
 - [Usage](#usage)
   - [As a binary](#as-a-binary)
