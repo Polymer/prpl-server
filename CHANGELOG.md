@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 <!-- ## Unreleased -->
 <!-- Add new, unreleased changes here. -->
 
+## [1.4.3] 2021-09-22
+- `prpl-server` is now deprecated. A warning will be printed when installing
+  from NPM, as well as each time the server is launched. Please see
+  https://github.com/Polymer/prpl-server#deprecation for details and recommended
+  alternatives.
+- Updated dependencies.
+- Updated some repo links (`prpl-server-node` -> `prpl-server`).
+
 ## [1.4.2] 2020-08-12
 - Update dependencies.
 - Clean up unnecessary NPM package files.

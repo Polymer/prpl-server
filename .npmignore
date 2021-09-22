@@ -1,6 +1,0 @@
-src/
-test/
-
-.clang-format
-.travis.yml
-tsconfig.json

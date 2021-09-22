@@ -1,12 +1,12 @@
-[![Travis Build Status](https://travis-ci.org/Polymer/prpl-server-node.svg?branch=master)](https://travis-ci.org/Polymer/prpl-server-node)
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/3bfbf7fgdifebv7o/branch/master?svg=true)](https://ci.appveyor.com/project/aomarks/prpl-server-node/branch/master)
-[![NPM version](http://img.shields.io/npm/v/prpl-server.svg)](https://www.npmjs.com/package/prpl-server)
+[![Build Status](https://github.com/Polymer/prpl-server/actions/workflows/tests.yml/badge.svg)](https://github.com/Polymer/prpl-server/actions/workflows/tests.yaml?query=branch%3Amain)
+[![Published on npm](https://img.shields.io/npm/v/prpl-server.svg?logo=npm)](https://www.npmjs.com/package/prpl-server)
 
 # prpl-server
 
 An HTTP server for Node designed to serve [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
 
-> ⚠️IMPORTANT⚠️ `prpl-server` is in maintenance mode, and is no longer recommended. Reports and PRs for critical bugs and security issues will be accepted, but we will no longer accept new feature requests or PRs.
+## Deprecation
+> ⚠️IMPORTANT⚠️ `prpl-server` is deprecated and is no longer recommended. Reports and PRs for critical bugs and security issues will be accepted, but we will no longer accept new feature requests or PRs.
 > 
 > For differential serving, we now recommend a simple two-build configuration using `nomodule` for client-side capability sniffing. See https://jasonformat.com/modern-script-loading/ for more details on this pattern.
 >

@@ -84,13 +84,21 @@ const argDefs = [
 ];
 
 export function run(argv: string[]) {
+  console.log(ansi.format(
+      `[red]{┌──────────────────────────────────────────────────────────────┐}` +
+      `\n[red]{│}[yellow bold]{WARNING} prpl-server is [bold]{deprecated} as of September 2021.       [red]{│}` +
+      `\n[red]{│}                                                              [red]{│}` +
+      `\n[red]{│}Please see https://github.com/Polymer/prpl-server#deprecation [red]{│}` +
+      `\n[red]{│}for details and recommended alternatives.                     [red]{│}` +
+      `\n[red]{└──────────────────────────────────────────────────────────────┘}\n`));
+
   const args = commandLineArgs(argDefs, {argv});
 
   if (args.help) {
     console.log(commandLineUsage([
       {
         header: `[magenta]{prpl-server}`,
-        content: 'https://github.com/Polymer/prpl-server-node',
+        content: 'https://github.com/Polymer/prpl-server',
       },
       {
         header: `Options`,
