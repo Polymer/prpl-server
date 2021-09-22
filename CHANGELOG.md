@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 - Update dependencies.
+- Updated some repo links (`prpl-server-node` -> `prpl-server`).
 <!-- Add new, unreleased changes here. -->
 
 ## [1.4.2] 2020-08-12

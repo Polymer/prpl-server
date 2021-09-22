@@ -90,7 +90,7 @@ export function run(argv: string[]) {
     console.log(commandLineUsage([
       {
         header: `[magenta]{prpl-server}`,
-        content: 'https://github.com/Polymer/prpl-server-node',
+        content: 'https://github.com/Polymer/prpl-server',
       },
       {
         header: `Options`,

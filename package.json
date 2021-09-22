@@ -2,7 +2,7 @@
   "name": "prpl-server",
   "version": "1.4.2",
   "description": "A Node implementation of the PRPL pattern for serving Progressive Web Apps",
-  "repository": "git+https://github.com/Polymer/prpl-server-node.git",
+  "repository": "git+https://github.com/Polymer/prpl-server.git",
   "main": "lib/prpl.js",
   "types": "lib/prpl.d.ts",
   "bin": "bin/prpl-server",
