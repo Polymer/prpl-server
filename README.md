@@ -5,7 +5,8 @@
 
 An HTTP server for Node designed to serve [PRPL](https://developers.google.com/web/fundamentals/performance/prpl-pattern/) apps in production.
 
-> ⚠️IMPORTANT⚠️ `prpl-server` is in maintenance mode, and is no longer recommended. Reports and PRs for critical bugs and security issues will be accepted, but we will no longer accept new feature requests or PRs.
+## Deprecation
+> ⚠️IMPORTANT⚠️ `prpl-server` is deprecated and is no longer recommended. Reports and PRs for critical bugs and security issues will be accepted, but we will no longer accept new feature requests or PRs.
 > 
 > For differential serving, we now recommend a simple two-build configuration using `nomodule` for client-side capability sniffing. See https://jasonformat.com/modern-script-loading/ for more details on this pattern.
 >

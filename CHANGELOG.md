@@ -6,10 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-- `prpl-server` is now in maintenance mode and will be reported as deprecated
-  when installed from NPM. See
-  https://github.com/Polymer/prpl-server#prpl-server for more details and
-  recommendations for alternatives.
+- `prpl-server` is now deprecated. A warning will be printed when installing
+  from NPM, as well as each time the server is launched. Please see
+  https://github.com/Polymer/prpl-server#deprecation for details and recommended
+  alternatives.
 - Updated dependencies.
 - Updated some repo links (`prpl-server-node` -> `prpl-server`).
 <!-- Add new, unreleased changes here. -->
