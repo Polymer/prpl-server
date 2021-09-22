@@ -17,7 +17,7 @@
     "format": "find src -name '*.ts' | xargs clang-format --style=file -i",
     "prepack": "npm run build",
     "prepublishOnly": "npm  test",
-    "test": "npm run build && mocha lib/test/**/*_test.js",
+    "test": "mocha lib/test/**/*_test.js",
     "test:watch": "tsc-then -- npm run test"
   },
   "files": [
